@@ -46,8 +46,9 @@ if ($act=='sys_pull_master') {
 	$output .= shell_exec($addr_git.' push -u origin working_development');
 
 	
-	$output .= shell_exec($addr_git.' git checkout master');
+	$output .= shell_exec($addr_git.' checkout master');
 
+	$output .= shell_exec($addr_git.' merge working_development');
 
 
 // we change to the master branch
