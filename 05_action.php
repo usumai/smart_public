@@ -55,6 +55,7 @@ if ($act=='sys_pull_master') {
 
 	// we push the new master branch to remote
 	$output .= shell_exec($addr_git.' push -u origin master');
+	$output .= shell_exec($addr_git.' checkout working_development');
 
 
 	header("Location: index.php");
