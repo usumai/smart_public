@@ -50,6 +50,7 @@ if ($act=='sys_pull_master') {
 	$output .= shell_exec($addr_git.' merge -s ours master');
 	// we change to the master branch
 	$output .= shell_exec($addr_git.' checkout master');
+	// Make the merge which should be a fast forward due to the development being based of the master and the master not being touched
 	$output .= shell_exec($addr_git.' merge working_development');
 
 	// we push the new master branch to remote
