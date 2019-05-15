@@ -25,7 +25,7 @@ if ($act=='sys_pull_master') {
 	// $output = shell_exec('set 2>&1');  The 2>&1 makes the command get all errors
 	echo "<pre>$output</pre>";
 	
-	header("Location: index.php");
+	// header("Location: index.php");
 }
 
 
