@@ -46,12 +46,14 @@ if ($act=='sys_pull_master') {
 	$output .= shell_exec($addr_git.' push -u origin working_development');
 
 	
+	
+	$output .= shell_exec($addr_git.' merge -s ours master');
 	// we change to the master branch
 	$output .= shell_exec($addr_git.' checkout master');
+	$output .= shell_exec($addr_git.' merge working_development');
 
 	// we push the new master branch to remote
 	$output .= shell_exec($addr_git.' push');
-
 
 
 	header("Location: index.php");
