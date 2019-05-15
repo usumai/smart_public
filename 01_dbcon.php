@@ -9,7 +9,6 @@ $smartm_db_version = "1";
 
 $hostname = "localhost";
 $username = "root";
-$dbname   = "test"; 
 $password = "";
 
 

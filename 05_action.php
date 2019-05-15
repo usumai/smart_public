@@ -1,5 +1,9 @@
-<?php
-$act = $_GET["act"];
+<?php include "01_dbcon.php"; ?><?php
+if (isset($_POST["actionType"])) {
+	$act = $_POST["act"];
+}else{
+	$act = $_GET["act"];
+}
 $addr_git = ' "\Program Files\Git\bin\git"  ';
 
 //CRUD
@@ -28,6 +32,19 @@ if ($act=='sys_pull_master') {
 	echo "<pre>$output</pre>";
 	
 	header("Location: index.php");
+}elseif ($act=='sys_initialise') {
+
+	$sql = "SELECT count(*) as dbexists FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'smartdb'";
+	$result = $con->query($sql);
+	if ($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			$dbexists    = $row["dbexists"];
+	}}
+
+	$sql_save = "CREATE TABLE ".$dbname.".smart_l01_settings (`smartm_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL DEFAULT NULL,`delete_date` DATETIME NULL DEFAULT NULL,`update_date` DATETIME NULL DEFAULT NULL,`active_profile_id` INT NULL DEFAULT NULL,`last_access_date` DATETIME NULL,`last_access_profile_id` INT(11) NULL,`smartm_software_version` INT(11) NULL,`smartm_db_version` INT(11) NULL,`rr_extract_date` DATETIME NULL, `rr_extract_user` VARCHAR(255) NULL DEFAULT NULL,`journal_id` INT(11) NULL,`help_shown` INT(11) NULL,`theme_type` INT(11) NULL, PRIMARY KEY (`smartm_id`),UNIQUE INDEX `smartm_id_UNIQUE` (`smartm_id` ASC));";
+	// echo "<br><br>".$sql_save;
+	mysqli_multi_query($con,$sql_save);
+create database smart;
 }
 
 
