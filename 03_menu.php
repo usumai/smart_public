@@ -10,18 +10,14 @@ if (strpos($actual_link, "110_smarter_master")){
 $area_version_status        = "<span class='dropdown-item'>Current version as at 2019-05-15: v0.3</span>";
 $btn_check_updates          = "<a class='dropdown-item' href='05_action.php?act=sys_check_updates'>Check for updates</a>";
 $btn_pull_master            = "<a class='dropdown-item' href='05_action.php?act=sys_pull_master'>Update to latest</a>";
-$btn_pull_development       = "<a class='dropdown-item' href='05_action.php?act=sys_pull_development'>Pull development branch</a>";
-$btn_push_development       = "<a class='dropdown-item' href='05_action.php?act=sys_push_development'>Push to development branch</a>";
-$btn_merge_dev_to_master    = "<a class='dropdown-item' href='05_action.php?act=sys_merge_dev_to_master'>Merge dev into master</a>";
+$btn_push_master       = "<a class='dropdown-item' href='05_action.php?act=sys_push_master'>Push to master</a>";
 if ($developer) {//User is accessing the source code - they are a developer
 
 }else{// User is a client - hide developer options
-    $btn_pull_development       = "";
-    $btn_push_development       = "";
-    $btn_merge_dev_to_master    = "";
+    $btn_push_master            = "";
 }
 
-$menu_software = $area_version_status.$btn_check_updates.$btn_pull_master.$btn_pull_development.$btn_push_development.$btn_merge_dev_to_master ;
+$menu_software = $area_version_status.$btn_check_updates.$btn_pull_master.$btn_push_master ;
 
 ?>
 
