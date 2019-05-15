@@ -1,7 +1,7 @@
 <?php
 $act = $_GET["act"];
+$addr_git = ' "\Program Files\Git\bin\git"  ';
 
-	$addr_git = ' "\Program Files\Git\bin\git"  ';
 //CRUD
 if ($act=='sys_pull_master') {
 	//This file updates the local software with the currently published software
