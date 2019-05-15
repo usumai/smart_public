@@ -10,7 +10,7 @@ if (strpos($actual_link, "110_smarter_master")){
 $area_version_status        = "<span class='dropdown-item'>Current version as at 2019-05-15: v0.3</span>";
 $btn_check_updates          = "<a class='dropdown-item' href='05_action.php?act=sys_check_updates'>Check for updates</a>";
 $btn_pull_master            = "<a class='dropdown-item' href='05_action.php?act=sys_pull_master'>Update to latest</a>";
-$btn_push_master       = "<a class='dropdown-item' href='05_action.php?act=sys_push_master'>Push to master</a>";
+$btn_push_master            = "<a class='dropdown-item' href='05_action.php?act=sys_push_master'>Push to master</a>";
 if ($developer) {//User is accessing the source code - they are a developer
 
 }else{// User is a client - hide developer options
@@ -33,6 +33,9 @@ $menu_software = $area_version_status.$btn_check_updates.$btn_pull_master.$btn_p
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
           <a class="nav-link" href="stk.php">Stocktake</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="05_action.php?act=sys_initialise">Initialise</a>
         </li>
         <!-- <li class="nav-item">
           <a class="nav-link" href="#">Link</a>
