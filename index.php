@@ -6,7 +6,6 @@
 	<div class="container">
 		<h1 class="mt-5">SMART Mobile</h1>
 		<p class="lead">New auto updating software.</p>
-		<p>Back to <a href="/docs/4.3/examples/sticky-footer/">the default sticky footer</a> minus the navbar.</p>
 	</div>
 </main>
 
