@@ -54,7 +54,6 @@ if ($act=='sys_pull_master') {
 
 
 
-
 	header("Location: index.php");
 
 }elseif ($act=='sys_initialise') {
