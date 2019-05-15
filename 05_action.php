@@ -11,6 +11,7 @@ if ($act=='sys_pull_master') {
 	//This file updates the local software with the currently published software
 
 	$output  = shell_exec($addr_git.' init 2>&1'); 
+	$output  = shell_exec($addr_git.' checkout master'); 
 	$output .= shell_exec($addr_git.' clean  -d  -f .');
 	$output .= shell_exec($addr_git.' reset --hard');  
 	$output .= shell_exec($addr_git.' pull https://github.com/usumai/smart_public.git');
@@ -46,14 +47,13 @@ if ($act=='sys_pull_master') {
 	$output .= shell_exec($addr_git.' push -u origin working_development');
 
 	
-	$output .= shell_exec($addr_git.' git checkout master');
+	// we change to the master branch
+	$output .= shell_exec($addr_git.' checkout master');
+	// we push the new master branch to remote
+	$output .= shell_exec($addr_git.' push');
 
 
 
-// we change to the master branch
-// we merge the working branch into the master branch
-
-// we push the new master branch to remote
 
 
 }elseif ($act=='sys_initialise') {
