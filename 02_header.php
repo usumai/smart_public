@@ -44,7 +44,7 @@ if ($theme_type==1) {
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta name="description" content="">
-		<title>SMARTm</title>
+		<title>SMART m</title>
 		<link href="includes/bootstrap-4.3.1-dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="includes/octicons/octicons.min.css">
         <link href="includes/fontawesome-free-5.8.2-web/css/all.css" rel="stylesheet"> <!--load all styles -->
