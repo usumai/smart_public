@@ -5,7 +5,7 @@ $act = $_GET["act"];
 if ($act=='sys_pull_master') {
 	//This file updates the local software with the currently published software
 	$output  = shell_exec('git init 2>&1'); 
-	$output  = shell_exec('git clean  -d  -f .');
+	$output .= shell_exec('git clean  -d  -f .');
 	$output .= shell_exec('git reset --hard');  
 	$output .= shell_exec('git pull https://github.com/usumai/smart_public.git');
 	echo "<pre>$output</pre>";
