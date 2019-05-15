@@ -11,7 +11,6 @@ if ($act=='sys_pull_master') {
 	//This file updates the local software with the currently published software
 
 	$output  = shell_exec($addr_git.' init 2>&1'); 
-	$output  = shell_exec($addr_git.' checkout master'); 
 	$output .= shell_exec($addr_git.' clean  -d  -f .');
 	$output .= shell_exec($addr_git.' reset --hard');  
 	$output .= shell_exec($addr_git.' pull https://github.com/usumai/smart_public.git');
@@ -40,21 +39,24 @@ if ($act=='sys_pull_master') {
 	// when ready to publish
 	// we make a final push to the working_dev branch keeping them both in sync	
 	$output  = shell_exec($addr_git.' init 2>&1'); 
-	$output  = shell_exec($addr_git.' checkout working_development'); 
+	$output .= shell_exec($addr_git.' checkout working_development'); 
 	$output .= shell_exec($addr_git.' add -A'); 
 	$output .= shell_exec($addr_git.' commit -m "auto commit"'); 
 	$output .= shell_exec($addr_git.' remote add origin https://github.com/usumai/smart_public.git'); 
 	$output .= shell_exec($addr_git.' push -u origin working_development');
 
 	
-	// we change to the master branch
 	$output .= shell_exec($addr_git.' checkout master');
-	// we push the new master branch to remote
+
 	$output .= shell_exec($addr_git.' push');
 
 
+// we change to the master branch
+// we merge the working branch into the master branch
 
+// we push the new master branch to remote
 
+	header("Location: index.php");
 
 }elseif ($act=='sys_initialise') {
 
