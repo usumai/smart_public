@@ -38,9 +38,9 @@ $menu_software = $area_version_status.$btn_check_updates.$btn_pull_master.$btn_p
         <li class="nav-item active">
           <a class="nav-link" href="stk.php">Stocktake</a>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" href="#">Link</a>
-        </li>
+        </li> -->
         <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">v<?=$version_no?></a>
         <div class="dropdown-menu" aria-labelledby="dropdown01">

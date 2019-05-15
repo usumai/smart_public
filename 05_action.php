@@ -12,7 +12,7 @@ if ($act=='sys_pull_master') {
 	$output .= shell_exec($addr_git.' pull https://github.com/usumai/smart_public.git');
 	echo "<pre>$output</pre>";
 
-	// header("Location: index.php");
+	header("Location: index.php");
 
 }elseif ($act=='sys_push_development') {//Typically don't use this. Developer only. User access will allow everything to be fucked up.
 	// if(function_exists('shell_exec')) {
@@ -27,7 +27,7 @@ if ($act=='sys_pull_master') {
 	// $output = shell_exec('set 2>&1');  The 2>&1 makes the command get all errors
 	echo "<pre>$output</pre>";
 	
-	// header("Location: index.php");
+	header("Location: index.php");
 }
 
 
