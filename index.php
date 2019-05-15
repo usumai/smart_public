@@ -5,7 +5,7 @@
 <main role="main" class="flex-shrink-0">
 	<div class="container">
 		<h1 class="mt-5">SMART Mobile</h1>
-		<p class="lead">New auto updating software.</p>
+		<p class="lead">New auto updating software. It's the best</p>
 	</div>
 </main>
 

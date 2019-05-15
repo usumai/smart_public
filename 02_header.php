@@ -1,12 +1,12 @@
 <?php
 
-$sql = "SELECT * FROM ".$dbname.".smart_l01_settings";
-$result = $con->query($sql);
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $theme_type    = $row["theme_type"];
-}}
-
+// $sql = "SELECT * FROM ".$dbname.".smart_l01_settings";
+// $result = $con->query($sql);
+// if ($result->num_rows > 0) {
+//     while($row = $result->fetch_assoc()) {
+//         $theme_type    = $row["theme_type"];
+// }}
+$theme_type="";
 if ($theme_type==1) {
     $scheme_color = "
     body{
