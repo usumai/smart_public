@@ -24,14 +24,15 @@ if ($act=='sys_pull_master') {
 	// }
 	ini_set('max_execution_time', 0);
 	$output  = shell_exec($addr_git.' init 2>&1'); 
+	$output  = shell_exec($addr_git.' checkout working_development'); 
 	$output .= shell_exec($addr_git.' add -A'); 
 	$output .= shell_exec($addr_git.' commit -m "auto commit"'); 
 	$output .= shell_exec($addr_git.' remote add origin https://github.com/usumai/smart_public.git'); 
-	$output .= shell_exec($addr_git.' push -u origin master');
+	$output .= shell_exec($addr_git.' push -u origin working_development');
 	// $output = shell_exec('set 2>&1');  The 2>&1 makes the command get all errors
 	echo "<pre>$output</pre>";
 	
-	header("Location: index.php");
+	// header("Location: index.php");
 }elseif ($act=='sys_initialise') {
 
 	$sql = "SELECT count(*) as dbexists FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'smartdb'";
