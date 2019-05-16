@@ -36,7 +36,8 @@ if ($theme_type==1) {
     ";
 }
 // $scheme_color = "";
-
+$icon_spot_green    = "<span class='octicon octicon-primitive-dot text-success' style='font-size:30px'></span>";
+$icon_spot_grey     = "<span class='octicon octicon-primitive-dot text-secondary' style='font-size:30px'></span>";
 ?>
 <!doctype html>
 <html lang="en" class="h-100">
@@ -44,20 +45,19 @@ if ($theme_type==1) {
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta name="description" content="">
-		<title>SMART m</title>
-		<link href="includes/bootstrap-4.3.1-dist/css/bootstrap.min.css" rel="stylesheet">
+		<title>SMART Mobile</title>
+		<link rel="stylesheet" href="includes/bootstrap-4.3.1-dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="includes/octicons/octicons.min.css">
-        <link href="includes/fontawesome-free-5.8.2-web/css/all.css" rel="stylesheet"> <!--load all styles -->
-        <link rel="stylesheet" href="a_includes/jquery-ui.css">
-        <script src="includes/bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="stylesheet" href="includes/fontawesome-free-5.8.2-web/css/all.css" rel="stylesheet"> <!--load all styles -->
+        <link rel="stylesheet" href="includes/jquery-ui.css">
+        <!-- <link rel="stylesheet" href="includes/datatables/dataTables.bootstrap4.min.css"> -->
         <script src="includes/jquery-3.4.1.min.js"></script>
-        <script src="a_includes/jquery-ui.js"></script>   
+        <!-- <script src="includes/jquery-ui.js"></script>    -->
         <style type="text/css">
-        body {
-            padding-top: 1rem;
-            overflow-y: scroll;
-        }
-        <?=$scheme_color?>
-
-    </style>
+            body {
+                padding-top: 1rem;
+                overflow-y: scroll;
+            }
+            <?=$scheme_color?>
+        </style>
 	</head>

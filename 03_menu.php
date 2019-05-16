@@ -32,7 +32,7 @@ $menu_software = $area_version_status.$btn_check_updates.$btn_pull_master.$btn_p
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="stk.php">Stocktake</a>
+          <a class="nav-link" href="10_stk.php">Stocktake</a>
         </li>
         <li class="nav-item active">
           <a class="nav-link" href="05_action.php?act=sys_initialise">Initialise</a>
