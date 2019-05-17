@@ -52,7 +52,7 @@ if ($result->num_rows > 0) {
 
 
 
-        $btn_export = "<a class='dropdown-item' href='109_export.php?stkm_id=".$stkm_id."'>Export Stocktake</a>";
+        $btn_export = "<a class='dropdown-item' href='06_export.php?stkm_id=".$stkm_id."'>Export Stocktake</a>";
 
         $btn_action     = " <div class='dropdown'>
                                 <button class='btn btn-outline-dark dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action</button>
