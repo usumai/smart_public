@@ -1,19 +1,46 @@
 <input type="file" onchange="readFile(this)">
+<style>
+	#myProgress {
+		width: 100%;
+		background-color: #ddd;
+	}
+	#myBar {
+		width: 1%;
+		height: 30px;
+		background-color: #4CAF50;
+	}
+</style>
+<div id="myProgress">
+	<div id="myBar"></div>
+</div>
+
 
 <script>
+let elem = document.getElementById("myBar");   
+let width = 1;
+let count_total_progress = 0;
+
+
 function readFile(input) {
-  let file = input.files[0];
-  let reader = new FileReader();
+  let file 		= input.files[0];
+  let reader 	= new FileReader();
   reader.readAsText(file);
 
 	reader.onload = function() {
 		let obj = JSON.parse(reader.result);
-		let assets = obj['import']['results'];
-		for (var key in assets) {
+		let assets 			= obj['import']['results'];
+		let count_total 	= obj['import']['count_total'];
+		let total_records 	= 4;
+		let fractions 		= 100/(total_records);
+		elem.style.width = fractions + '%';
+		console.log(fractions);
+
+
+		for (let key in assets) {
 			if (assets.hasOwnProperty(key)) {
-				var asset = assets[key];
+				let asset = assets[key];
 				let asset_clean='';
-				for (var assfkey in asset) {
+				for (let assfkey in asset) {
 					assfval = asset[assfkey]
 					if(assfkey=="ass_id"){
 
@@ -27,33 +54,32 @@ function readFile(input) {
 						}
 					}
 				}
-				var assetvalues = asset_clean.substr(0, asset_clean.length-1);
-				// console.log(assetvalues) 
-				var assetkeys = Object.keys(asset);
+				let assetvalues = asset_clean.substr(0, asset_clean.length-1);
+				let assetkeys = Object.keys(asset);
 				assetkeys.shift();
-				// var assetvalues = Object.values(asset);
-				let sql = "INSERT INTO smartdb.sm14_ass ("+assetkeys+") VALUES ("+assetvalues+");";
-				console.log(sql);
-
-				// let data = {element: "barium"};
+				let sql_save = "INSERT INTO smartdb.sm14_ass ("+assetkeys+") VALUES ("+assetvalues+");";
+				let data = new FormData();
+				data.append("sql_save", sql_save);
 
 				fetch("save.php", {
-				  method: "POST", 
-				  sql: sql
+					method: "POST",
+        			body: data
 				})
-				// .then(res => {
-				// 	// console.log("Request complete! response:", res.body);
-				// 	console.log(JSON.stringify( res ));
-    //   				// return res.json();
-				// })
-
-			.then(function(res){ 
-				// return res.json(); 
-				console.log(res.json());
-			})
-			.then(function(data){ alert( JSON.stringify( data ) ) })
-				// .then((data) =>{
-			 //    });
+				.then(function(res){ 
+					return res.text();
+				})
+				.then(function(res){ 
+					// alert(res)
+					if(res=="success"){
+						width = width+fractions; 
+						elem.style.width = width + '%';
+						console.log("updating progress bar"+width);
+					}
+					count_total_progress++;
+					if (count_total_progress>=total_records) {
+						window.location.href = "05_action.php?act=save_finish_upload";
+					}
+				})
 
 			}
 		}

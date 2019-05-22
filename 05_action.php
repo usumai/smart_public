@@ -5,8 +5,8 @@ if (isset($_POST["act"])) {
 	$act = $_GET["act"];
 }
 $addr_git = ' "\Program Files\Git\bin\git"  ';
-
 $log = "<br>"."Initialising action file";
+// mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 //CRUD
 if ($act=='sys_pull_master') {
 	//This file updates the local software with the currently published software
@@ -24,12 +24,12 @@ if ($act=='sys_pull_master') {
 	//     echo "exec is enabled";
 	// }
 	ini_set('max_execution_time', 0);
-	$output  = shell_exec($addr_git.' init 2>&1'); 
+	$output  = shell_exec($addr_git.' init 2>&1'); // The 2>&1 makes the command get all errors
 	$output .= shell_exec($addr_git.' add -A'); 
 	$output .= shell_exec($addr_git.' commit -m "auto commit"'); 
 	$output .= shell_exec($addr_git.' remote add origin https://github.com/usumai/smart_public.git'); 
 	$output .= shell_exec($addr_git.' push -u origin master');
-	// $output = shell_exec('set 2>&1');  The 2>&1 makes the command get all errors
+	
 	echo "<pre>$output</pre>";
 	
 	header("Location: index.php");
@@ -67,9 +67,9 @@ mysqli_multi_query($con,$sql_save);
           $sql_save = "CREATE TABLE $dbname.sm12_rwr (`rr_id` INT(11) NOT NULL AUTO_INCREMENT,`Asset` VARCHAR(15) NULL DEFAULT NULL,`accNo` VARCHAR(5) NULL DEFAULT NULL, `InventNo` VARCHAR(30) NULL DEFAULT NULL, `AssetDesc1` VARCHAR(255) NULL DEFAULT NULL, `Class` VARCHAR(255) NULL DEFAULT NULL, `ParentName` VARCHAR(255) NULL DEFAULT NULL, PRIMARY KEY (`rr_id`),UNIQUE INDEX `rr_id_UNIQUE` (`rr_id` ASC));";
           mysqli_multi_query($con,$sql_save);
 
-          $sql_save = "CREATE TABLE $dbname.sm13_stk (`stkm_id` INT NOT NULL AUTO_INCREMENT,`stk_id` INT NULL,`stk_name` VARCHAR(255) NULL,`extract_date` DATETIME NULL,`extract_user` VARCHAR(255) NULL,`delete_date` DATETIME NULL,`delete_user` VARCHAR(255) NULL,`stk_include` INT NULL,`journal_text` LONGTEXT NULL,PRIMARY KEY (`stkm_id`),UNIQUE INDEX `stkm_id_UNIQUE` (`stkm_id` ASC));";
+          $sql_save = "CREATE TABLE $dbname.sm13_stk (`stkm_id` INT NOT NULL AUTO_INCREMENT,`stk_id` INT NULL,`stk_name` VARCHAR(255) NULL,`dpn_extract_date` DATETIME NULL,`dpn_extract_user` VARCHAR(255) NULL,`smm_extract_date` DATETIME NULL,`smm_extract_user` VARCHAR(255) NULL,`smm_delete_date` DATETIME NULL,`smm_delete_user` VARCHAR(255) NULL,`stk_include` INT NULL,`rowcount_original` INT NULL,`journal_text` LONGTEXT NULL,PRIMARY KEY (`stkm_id`),UNIQUE INDEX `stkm_id_UNIQUE` (`stkm_id` ASC));";
           mysqli_multi_query($con,$sql_save);
- 
+
           $log .= "<br>"."creating $dbname.sm14_ass ";
           $sql_save = "
                     CREATE TABLE `$dbname`.`sm14_ass` (
@@ -87,7 +87,7 @@ mysqli_multi_query($con,$sql_save);
                     `impairment_code` varchar(255) DEFAULT NULL,
 
                     `genesis_cat` varchar(255) DEFAULT NULL,
-                    `first_found_flag` int(11) NOT NULL,
+                    `first_found_flag` int(11) DEFAULT NULL,
                     `rr_id` int(11) DEFAULT NULL,
                     `fingerprint` varchar(255) DEFAULT NULL,
 
@@ -192,15 +192,9 @@ mysqli_multi_query($con,$sql_save);
                     UNIQUE KEY `ass_id_UNIQUE` (`ass_id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
           mysqli_multi_query($con,$sql_save);   
-
-
-        
-           
     }//End create database area
 
      header("Location: index.php");
-
-
 
 }elseif ($act=='save_stk_toggle') {
      $stkm_id = $_GET["stkm_id"];
@@ -220,68 +214,34 @@ mysqli_multi_query($con,$sql_save);
 
      header("Location: index.php");
 
-}elseif ($act=='upload_file') {
+}elseif ($act=='upload_file') {//This is the old method, we should be able to delete this once the new import process is finalised
      $dev=false;
-     // print_r($_FILES); 
      $target_file = $_FILES["fileToUpload"]["tmp_name"];
-     // $target_file = $_FILES["fileToUpload"]["name"];
      $fileContents = file_get_contents($target_file);
-     // echo $fileContents;
-     // $fileContents = utf8_encode($fileContents);
 
      //This is to remove the unicode encoding on the file. It leaves two characters at the start of the file which throw an error.
-     $fileContents = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $fileContents);
-
-          // if ($dev) { echo "<br>fileContents:".$fileContents; }
-
-
-     // $fileContents = "{"import": {"type":"stocktake","extract_date":"2018-09-12","extract_user":"lucas.taulealeausuma", "stkID": 1054,"stkName":"40072_0836_Larrakeyah_Barracks_(incorporates_HMAS_Coonawarra)_LBI"}}";
-     // $fileContents = file_get_contents("test.txt");
-     // echo $fileContents;
-     $sampleArr     = json_decode($fileContents, true);
-     $importType    = $sampleArr['import']['type'];
-     if ($dev) { echo "<br>Import type: ".$importType; }
-     // echo "<br>Import type: ".$importType;
-     // echo "<br>extractDate: ".$extract_date;
-     // echo "<br>extract_user: ".$extract_user;
-
-
-     $extract_date                 = $sampleArr['import']['extract_date'];
-     $extract_user                 = $sampleArr['import']['extract_user'];
-     $stkm_id_old                  = $sampleArr['import']['stkm_id'];
-     $stk_id                       = $sampleArr['import']['stk_id'];
-     $stk_name                     = $sampleArr['import']['stk_name'];
-     $active_profile_id            = $sampleArr['import']['active_profile_id'];
-     $smartm_software_version      = $sampleArr['import']['smartm_software_version'];
-     $smartm_db_version            = $sampleArr['import']['smartm_db_version'];
-     $rr_extract_date              = $sampleArr['import']['rr_extract_date'];
-     $journal_text                 = $sampleArr['import']['journal_text'];
-     $export_date                  = $sampleArr['import']['export_date'];
-     $count_total                  = $sampleArr['import']['count_total'];
-     $count_original               = $sampleArr['import']['count_original'];
-     $count_firstfound             = $sampleArr['import']['count_firstfound'];
-     $count_completed              = $sampleArr['import']['count_completed'];
-     $results                      = $sampleArr['import']['results'];
+     $fileContents  = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $fileContents);
+     $arr_full      = json_decode($fileContents, true);
+     $arr           = $arr_full['import'];
+     $stk_id                  = $arr['stk_id'];
+     $stk_name                = $arr['stk_name'];
+     $dpn_extract_date        = $arr['dpn_extract_date'];
+     $dpn_extract_user        = $arr['dpn_extract_user'];
+     $smm_extract_date        = $arr['smm_extract_date'];
+     $smm_extract_user        = $arr['smm_extract_user'];
+     $journal_text            = $arr['journal_text'];
+     $rowcount_original       = $arr['rowcount_original'];
+     $rowcount_firstfound     = $arr['rowcount_firstfound'];
+     $rowcount_other          = $arr['rowcount_other'];
+     $rowcount_completed      = $arr['rowcount_completed'];
+     $assets                  = $arr['results'];
 
      if ($dev) {
-          echo "<br>extract_date:".$extract_date 
-               ."<br>extract_user:".$extract_user 
-               ."<br>stkm_id_old:".$stkm_id_old 
-               ."<br>stk_id:".$stk_id 
-               ."<br>stk_name:".$stk_name 
-               ."<br>active_profile_id:".$active_profile_id 
-               ."<br>smartm_software_version:".$smartm_software_version
-               ."<br>smartm_db_version:".$smartm_db_version
-               ."<br>rr_extract_date:".$rr_extract_date
-               ."<br>journal_text:".$journal_text
-               ."<br>export_date:".$export_date 
-               ."<br>count_total:".$count_total 
-               ."<br>export_date:".$export_date;
-               // print_r($results) ;
+          echo "<br>stk_id:".$stk_id ."<br>stk_name:".$stk_name ."<br>dpn_extract_date:".$dpn_extract_date ."<br>dpn_extract_user:".$dpn_extract_user ."<br>smm_extract_date:".$smm_extract_date ."<br>smm_extract_user:".$smm_extract_user ."<br>journal_text:".$journal_text."<br>rowcount_original:".$rowcount_original ."<br>rowcount_firstfound:".$rowcount_firstfound."<br>rowcount_other:".$rowcount_other."<br>rowcount_completed:".$rowcount_completed;
+               // print_r($assets) ;
      }
 
-
-     $sql_save = "INSERT INTO smartdb.sm13_stk (stk_id,stk_name,extract_date,extract_user) VALUES ('".$stk_id."','".$stk_name."','".$extract_date."','".$extract_user."'); ";
+     $sql_save = "INSERT INTO smartdb.sm13_stk (stk_id,stk_name,dpn_extract_date,dpn_extract_user,smm_extract_date,smm_extract_user,rowcount_original,journal_text) VALUES ('".$stk_id."','".$stk_name."','".$dpn_extract_date."','".$dpn_extract_user."','".$smm_extract_date."','".$smm_extract_user."','".$rowcount_original."','".$journal_text."'); ";
      if ($dev) { echo "<br>sql_save: ".$sql_save; }
      mysqli_multi_query($con,$sql_save);
 
@@ -291,64 +251,139 @@ mysqli_multi_query($con,$sql_save);
           while($row = $result->fetch_assoc()) {
                $stkm_id_new    = $row["stkm_id"];
      }}
-     foreach($results as $asset) {
-               $ass_id                       = $asset['ass_id'];
-               $delete_date_ass              = $asset['delete_date_ass'];
-               $delete_user_ass              = $asset['delete_user_ass'];
-               $delete_date_stk              = $asset['delete_date_stk'];
-               $storage_id                   = $asset['storage_id'];
-               $Asset                        = $asset['Asset'];
-               $first_found_flag             = $asset['first_found_flag'];
-               $impairment_code              = $asset['impairment_code'];
 
-               $AssetDesc1                   = $asset['AssetDesc1'];
-               $AssetDesc2                   = $asset['AssetDesc2'];
-               $AssetMainNoText              = $asset['AssetMainNoText'];
-               $Class                        = $asset['Class'];
-               $Inventory                    = $asset['Inventory'];
-               $Quantity                     = $asset['Quantity'];
-               $SNo                          = $asset['SNo'];
-               $InventNo                     = $asset['InventNo'];
-               $accNo                        = $asset['accNo'];
-               $site_name                    = $asset['site_name'];
-               $Location                     = $asset['Location'];
-               $Room                         = $asset['Room'];
-               $State                        = $asset['State'];
-               $latitude                     = $asset['latitude'];
-               $longitude                    = $asset['longitude'];
-               $CurrentNBV                   = $asset['CurrentNBV'];
-               $AcqValue                     = $asset['AcqValue'];
-               $OrigValue                    = $asset['OrigValue'];
-               $ScrapVal                     = $asset['ScrapVal'];
-               $ValMethod                    = $asset['ValMethod'];
-               $RevOdep                      = $asset['RevOdep'];
-               $CapDate                      = $asset['CapDate'];
-               $LastInv                      = $asset['LastInv'];
-               $DeactDate                    = $asset['DeactDate'];
-               $PlRetDate                    = $asset['PlRetDate'];
-               $CCC_ParentName               = $asset['CCC_ParentName'];
-               $CCC_GrandparentName          = $asset['CCC_GrandparentName'];
-               $GrpCustod                    = $asset['GrpCustod'];
-               $CostCtr                      = $asset['CostCtr'];
-               $WBSElem                      = $asset['WBSElem'];
-               $Fund                         = $asset['Fund'];
-               $RspCCtr                      = $asset['RspCCtr'];
-               $CoCd                         = $asset['CoCd'];
-               $PlateNo                      = $asset['PlateNo'];
-               $Vendor                       = $asset['Vendor'];
-               $Mfr                          = $asset['Mfr'];
-               $UseNo                        = $asset['UseNo'];
+     // Get a list of the sql fields- the array fields need to match the db for this system to work
+     $keys = array_keys($assets["0"]);
+     unset($keys[0]); //Remove ass_id since it is a primary key
+     unset($keys[107]);//Remove the last array item which is a 'end' holder
+     $tags = implode(', ', $keys);
+     
+     if(end($assets)['ass_id']=="END") {//We don't want this to happen for exports from the DPN (Which have this)
+          array_pop($assets);// Remove the last asset from the array- it is an 'end' holder
+     }
 
-               $sql_save_assets=" INSERT INTO smartdb.sm14_ass (create_date, stkm_id, storage_id, Asset, AssetDesc1, AssetDesc2, AssetMainNoText, Class, Inventory, Quantity, SNo, InventNo, accNo, Location, Room, State, latitude, longitude, CurrentNBV, AcqValue, OrigValue, ScrapVal, ValMethod, RevOdep, CapDate, LastInv, DeactDate, PlRetDate, CCC_ParentName, CCC_GrandparentName, GrpCustod, CostCtr, WBSElem, Fund, RspCCtr, CoCd, PlateNo, Vendor, Mfr, UseNo) VALUES(NOW(), '".$stkm_id_new."','".$storage_id."','".$Asset."','".$AssetDesc1."','".$AssetDesc2."','".$AssetMainNoText."','".$Class."','".$Inventory."','".$Quantity."','".$SNo."','".$InventNo."','".$accNo."','".$Location."','".$Room."','".$State."','".$latitude."','".$longitude."','".$CurrentNBV."','".$AcqValue."','".$OrigValue."','".$ScrapVal."','".$ValMethod."','".$RevOdep."','".$CapDate."','".$LastInv."','".$DeactDate."','".$PlRetDate."','".$CCC_ParentName."','".$CCC_GrandparentName."','".$GrpCustod."','".$CostCtr."','".$WBSElem."','".$Fund."','".$RspCCtr."','".$CoCd."','".$PlateNo."','".$Vendor."','".$Mfr."','".$UseNo."'); ";
-               mysqli_multi_query($con,$sql_save_assets);
-               // if ($dev) {echo "<br>".$Asset;}
-               if ($dev) {echo "<br><br>".$sql_save_assets;}
 
+
+     function cleanvalue($fieldvalue) {
+          $fieldvalue = str_replace("'", "\'", $fieldvalue);
+          $fieldvalue = str_replace('"', '\"', $fieldvalue);
+          // $fieldvalue = str_replace("""", "/""", $fieldvalue);
+         if ($fieldvalue=="") {
+               $fieldvalue="NULL";
           }
+          else{
+               $fieldvalue="'".$fieldvalue."'";
+          }
+          return $fieldvalue;
+     }
+
+     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+     foreach($assets as $ass) {
+          foreach($ass as $fieldname => $fieldvalue) {
+               $ass[$fieldname] = cleanvalue($ass[$fieldname]);
+          }
+          $sql_save=" INSERT INTO smartdb.sm14_ass ($tags) VALUES(".$ass['create_date'].",".$ass['create_user'].",".$ass['delete_date'].",".$ass['delete_user'].",".$stkm_id_new.",".$ass['storage_id'].",".$ass['stk_include'].",".$ass['Asset'].",".$ass['Subnumber'].",".$ass['impairment_code'].",".$ass['genesis_cat'].",".$ass['first_found_flag'].",".$ass['rr_id'].",".$ass['fingerprint'].",".$ass['res_create_date'].",".$ass['res_create_user'].",".$ass['res_reason_code'].",".$ass['res_reason_code_desc'].",".$ass['res_impairment_completed'].",".$ass['res_completed'].",".$ass['res_comment'].",".$ass['AssetDesc1'].",".$ass['AssetDesc2'].",".$ass['AssetMainNoText'].",".$ass['Class'].",".$ass['classDesc'].",".$ass['assetType'].",".$ass['Inventory'].",".$ass['Quantity'].",".$ass['SNo'].",".$ass['InventNo'].",".$ass['accNo'].",".$ass['Location'].",".$ass['Room'].",".$ass['State'].",".$ass['latitude'].",".$ass['longitude'].",".$ass['CurrentNBV'].",".$ass['AcqValue'].",".$ass['OrigValue'].",".$ass['ScrapVal'].",".$ass['ValMethod'].",".$ass['RevOdep'].",".$ass['CapDate'].",".$ass['LastInv'].",".$ass['DeactDate'].",".$ass['PlRetDate'].",".$ass['CCC_ParentName'].",".$ass['CCC_GrandparentName'].",".$ass['GrpCustod'].",".$ass['CostCtr'].",".$ass['WBSElem'].",".$ass['Fund'].",".$ass['RspCCtr'].",".$ass['CoCd'].",".$ass['PlateNo'].",".$ass['Vendor'].",".$ass['Mfr'].",".$ass['UseNo'].",".$ass['res_AssetDesc1'].",".$ass['res_AssetDesc2'].",".$ass['res_AssetMainNoText'].",".$ass['res_Class'].",".$ass['res_classDesc'].",".$ass['res_assetType'].",".$ass['res_Inventory'].",".$ass['res_Quantity'].",".$ass['res_SNo'].",".$ass['res_InventNo'].",".$ass['res_accNo'].",".$ass['res_Location'].",".$ass['res_Room'].",".$ass['res_State'].",".$ass['res_latitude'].",".$ass['res_longitude'].",".$ass['res_CurrentNBV'].",".$ass['res_AcqValue'].",".$ass['res_OrigValue'].",".$ass['res_ScrapVal'].",".$ass['res_ValMethod'].",".$ass['res_RevOdep'].",".$ass['res_CapDate'].",".$ass['res_LastInv'].",".$ass['res_DeactDate'].",".$ass['res_PlRetDate'].",".$ass['res_CCC_ParentName'].",".$ass['res_CCC_GrandparentName'].",".$ass['res_GrpCustod'].",".$ass['res_CostCtr'].",".$ass['res_WBSElem'].",".$ass['res_Fund'].",".$ass['res_RspCCtr'].",".$ass['res_CoCd'].",".$ass['res_PlateNo'].",".$ass['res_Vendor'].",".$ass['res_Mfr'].",".$ass['res_UseNo'].",".$ass['res_isq_5'].",".$ass['res_isq_6'].",".$ass['res_isq_7'].",".$ass['res_isq_8'].",".$ass['res_isq_9'].",".$ass['res_isq_10'].",".$ass['res_isq_13'].",".$ass['res_isq_14'].",".$ass['res_isq_15']." ); ";
+          // echo "<br><br>".$sql_save;
+          mysqli_multi_query($con,$sql_save);
+     }
      header("Location: index.php");
 
+}elseif ($act=='get_export_stk'){
+     $stkm_id = $_GET["stkm_id"];
+
+     $mydate=getdate(date("U"));
+     $month_disp = substr("00".$mydate['mon'], -2);
+     $day_disp      = substr("00".$mydate['mday'], -2);
+     $hours_disp    = substr("00".$mydate['hours'], -2);
+     $minutes_disp  = substr("00".$mydate['minutes'], -2);
+     $seconds_disp  = substr("00".$mydate['seconds'], -2);
+     $date_disp = $mydate['year'].$month_disp.$day_disp;
+     $date_disp = $mydate['year'].$month_disp.$day_disp."_".$hours_disp.$minutes_disp.$seconds_disp;
+     $txt_file_link = 'SMARTm_file_'.$date_disp.'.json';
+     $fp = fopen($txt_file_link, 'w');
+
+     $sql = "SELECT *  FROM smartdb.sm14_ass WHERE stkm_id = $stkm_id ;";
+     $arr_asset = array();
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+         while($r = $result->fetch_assoc()) {
+             $arr_asset[] = $r;
+     }}
+
+     $sql = "SELECT * FROM smartdb.sm13_stk WHERE stkm_id=$stkm_id;";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+         while($row = $result->fetch_assoc()) {
+             $stk_id               = $row["stk_id"];
+             $stk_name             = $row["stk_name"];
+             $dpn_extract_date     = $row["dpn_extract_date"];
+             $dpn_extract_user     = $row["dpn_extract_user"];
+             $journal_text         = $row["journal_text"];
+     }}
+
+     $sql = "SELECT * FROM smartdb.sm10_set;";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+         while($row = $result->fetch_assoc()) {
+             $smm_create_user    = $row["active_profile_id"];
+     }}
+     $smm_create_date = $mydate['year']."-".$month_disp."-".$day_disp;
+
+     $sql = " SELECT 
+                   sum(CASE WHEN storage_id IS NOT NULL THEN 1 ELSE 0 END) AS rowcount_original,
+                   sum(CASE WHEN first_found_flag = 1 THEN 1 ELSE 0 END) AS rowcount_firstfound,
+                   sum(CASE WHEN res_completed = 1 THEN 1 ELSE 0 END) AS rowcount_completed,
+                   sum(CASE WHEN storage_id IS NULL AND first_found_flag <> 1 THEN 1 ELSE 0 END) AS rowcount_other
+               FROM smartdb.sm14_ass";
+     $result2 = $con->query($sql);
+     if ($result2->num_rows > 0) {
+       while($row2 = $result2->fetch_assoc()) {
+           $rowcount_original      = $row2["rowcount_original"];
+           $rowcount_firstfound    = $row2["rowcount_firstfound"];
+           $rowcount_completed     = $row2["rowcount_completed"];
+           $rowcount_other         = $row2["rowcount_other"];
+     }}
+
+     $response = array();
+     $response['import']['type']                  = "stocktake_export";
+     $response['import']['stkm_id']               = $stkm_id;
+     $response['import']['stk_id']                = $stk_id;
+     $response['import']['stk_name']              = $stk_name;
+     $response['import']['dpn_extract_date']      = $dpn_extract_date;
+     $response['import']['dpn_extract_user']      = $dpn_extract_user;
+     $response['import']['smm_create_user']       = $smm_create_user;
+     $response['import']['smm_create_date']       = $smm_create_date;
+     $response['import']['journal_text']          = $journal_text;
+     $response['import']['rowcount_original']     = $rowcount_original;
+     $response['import']['rowcount_firstfound']   = $rowcount_firstfound;
+     $response['import']['rowcount_completed']    = $rowcount_completed;
+     $response['import']['rowcount_other']        = $rowcount_other;
+     $response['import']['results']               = $arr_asset;
+
+     // print_r($response);
+     fwrite($fp, json_encode($response));
+     fclose($fp);
+     if (file_exists($txt_file_link)) {
+         header('Content-Description: File Transfer');
+         header('Content-Type: application/octet-stream');
+         header('Content-Disposition: attachment; filename='.basename($txt_file_link));
+         header('Content-Transfer-Encoding: binary');
+         header('Expires: 0');
+         header('Cache-Control: must-revalidate');
+         header('Pragma: public');
+         header('Content-Length: ' . filesize($txt_file_link));
+         ob_clean();
+         flush();
+         readfile($txt_file_link);
+         exit;
+     }
+
+
+
+
+
 }
-echo $log;
+// echo $log;
 
 
 ?>
