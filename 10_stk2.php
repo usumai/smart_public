@@ -118,14 +118,6 @@ new Vue({
 	data: <?=$json_asset?>
 })
 </script>
-<script type="text/javascript">
-new Vue({
-  el: '#app',
-  data: {
-    showModal: false
-  }
-})
-</script>
 
 
 
