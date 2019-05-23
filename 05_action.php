@@ -206,11 +206,14 @@ mysqli_multi_query($con,$sql_save);
                $stk_include   = $row["stk_include"];
      }}
      if ($stk_include==1) {
-          $sql_save = "UPDATE smartdb.sm13_stk SET stk_include=0 WHERE stkm_id = $stkm_id;";
+          $sql_save_stk = "UPDATE smartdb.sm13_stk SET stk_include=0 WHERE stkm_id = $stkm_id;";
+          $sql_save_ass = "UPDATE smartdb.sm14_ass SET stk_include=0 WHERE stkm_id = $stkm_id;";
      }else{
-          $sql_save = "UPDATE smartdb.sm13_stk SET stk_include=1 WHERE stkm_id = $stkm_id;";
+          $sql_save_stk = "UPDATE smartdb.sm13_stk SET stk_include=1 WHERE stkm_id = $stkm_id;";
+          $sql_save_ass = "UPDATE smartdb.sm14_ass SET stk_include=1 WHERE stkm_id = $stkm_id;";
      }
-     mysqli_multi_query($con,$sql_save);
+     mysqli_multi_query($con,$sql_save_stk);
+     mysqli_multi_query($con,$sql_save_ass);
 
      header("Location: index.php");
 
@@ -257,7 +260,7 @@ mysqli_multi_query($con,$sql_save);
      unset($keys[0]); //Remove ass_id since it is a primary key
      unset($keys[107]);//Remove the last array item which is a 'end' holder
      $tags = implode(', ', $keys);
-     
+
      if(end($assets)['ass_id']=="END") {//We don't want this to happen for exports from the DPN (Which have this)
           array_pop($assets);// Remove the last asset from the array- it is an 'end' holder
      }

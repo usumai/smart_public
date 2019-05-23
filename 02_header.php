@@ -6,7 +6,8 @@
 //     while($row = $result->fetch_assoc()) {
 //         $theme_type    = $row["theme_type"];
 // }}
-$theme_type="";
+$theme_type=0;
+$scheme_color="";
 if ($theme_type==1) {
     $scheme_color = "
     body{

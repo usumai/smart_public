@@ -2,6 +2,7 @@
 $version_no = "0.1";
 $icon_tick = "<i class='far fa-check-circle'></i>";
 
+
 $developer=false;
 $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 if (strpos($actual_link, "110_smarter_master")){
@@ -19,20 +20,35 @@ if ($developer) {//User is accessing the source code - they are a developer
 
 $menu_software = $area_version_status.$btn_check_updates.$btn_pull_master.$btn_push_master ;
 
+$rw_stk = "";
+$sql = "SELECT COUNT(*) as livecount FROM smartdb.sm13_stk WHERE stk_include = 1;";
+$result = $con->query($sql);
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $livecount            = $row["livecount"];
+
+}}
+if($livecount>0){
+    // $btn_stk = "<a href='10_stk.php' class='nav-link btn btn-sm btn-success'>Stocktake</a>";
+    $btn_stk = "<a href='10_stk.php' class='nav-link text-success'>Stocktake</a>";
+}else{
+    $btn_stk = "<a href='10_stk.php' class='nav-link text-secondary' >Stocktake</a>";
+}
+
 ?>
 
 <body class="d-flex flex-column h-100">
 <header>
   <!-- Fixed navbar -->
   <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <a class="navbar-brand" href="#">smartM</a>
+    <a class="navbar-brand" href="index.php">smartM</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="10_stk.php">Stocktake</a>
+          <?=$btn_stk?>
         </li>
         <li class="nav-item active">
           <a class="nav-link" href="05_action.php?act=sys_initialise">Initialise</a>
