@@ -90,17 +90,12 @@ ass_id, create_date, create_user, delete_date, delete_user, stkm_id, storage_id,
 			<td>{{ x.AssetDesc2 }}</td>
 			<td>{{ x.Class }}</td>
 			<td>{{ x.ass_id }}</td>
-			<td><button href='' class='btn btn-outline-dark float-right'  id="show-modal" @click="showModal = true">Action</button></td>
+			<td><button href='' class='btn btn-outline-dark float-right'  id="show-modal" value="{{ x.ass_id }}" @click="showModal = true">Action</button></td>
 		</tr>	
 	</table>
-
-
-
 	<modal v-if="showModal" @close="showModal = false">
 		<h3 slot="header">custom header</h3>
 	</modal>
-
-
 </div>
 
 

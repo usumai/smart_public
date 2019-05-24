@@ -294,6 +294,8 @@ mysqli_multi_query($con,$sql_save);
 }elseif ($act=='get_export_stk'){
      $stkm_id = $_GET["stkm_id"];
 
+
+
      $mydate=getdate(date("U"));
      $month_disp = substr("00".$mydate['mon'], -2);
      $day_disp      = substr("00".$mydate['mday'], -2);
@@ -382,8 +384,77 @@ mysqli_multi_query($con,$sql_save);
      }
 
 
+}elseif ($act=='save_asset_edit'){
+     $ass_id             = $_POST["ass_id"];
+     $res_reason_code    = $_POST["res_reason_code"];
+     $res_completed      = $_POST["res_completed"];
+     $sql_save = "UPDATE smartdb.sm14_ass SET res_reason_code='$res_reason_code',res_completed=$res_completed WHERE ass_id = $ass_id;";
+     echo $sql_save;
+     if (!mysqli_multi_query($con,$sql_save)){
+          $save_error = mysqli_error($con);
+          echo 'failure'.$save_error;
+     }else{
+          echo 'success';     
+     }
 
 
+}elseif ($act=='get_excel'){
+     $stkm_id = $_GET["stkm_id"];
+
+     $mydate=getdate(date("U"));
+     $month_disp = substr("00".$mydate['mon'], -2);
+     $day_disp      = substr("00".$mydate['mday'], -2);
+     $hours_disp    = substr("00".$mydate['hours'], -2);
+     $minutes_disp  = substr("00".$mydate['minutes'], -2);
+     $seconds_disp  = substr("00".$mydate['seconds'], -2);
+     $date_disp     = $mydate['year'].$month_disp.$day_disp;
+     $date_disp     = $mydate['year'].$month_disp.$day_disp."_".$hours_disp.$minutes_disp.$seconds_disp;
+
+     $txt_file_link = "$date_disp.xls";
+     $file_excel    = fopen($txt_file_link, "w") or die("Unable to open file!");
+
+     $cherry=0;
+     $contents = "";
+     $header   = "<html><body><table border='1'><tr>";
+     $sql = "SELECT *  FROM smartdb.sm14_ass WHERE stkm_id = $stkm_id LIMIT 100;";
+     $arr_asset = array();
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+          while($r = $result->fetch_assoc()) {
+               $contents .= "<tr>";
+
+               if($cherry==0){
+                    $cherry=1;
+                    foreach($r as $column=>$value) {
+                         $header .= "<td><b>$column</b></td>";
+                    }
+               }
+               foreach($r as $column=>$value) {
+                    // echo "<br>$column = $value\n";
+                    $contents .= "<td>$value</td>";
+               }
+               $contents .= "</tr>";
+     }}
+
+     $header   .= "</tr>";
+     $contents = $header.$contents."</table></body></html>";
+
+     fwrite($file_excel, $contents);
+     fclose($file_excel);
+     if (file_exists($txt_file_link)) {
+         header('Content-Description: File Transfer');
+         header('Content-Type: application/octet-stream');
+         header('Content-Disposition: attachment; filename='.basename($txt_file_link));
+         header('Content-Transfer-Encoding: binary');
+         header('Expires: 0');
+         header('Cache-Control: must-revalidate');
+         header('Pragma: public');
+         header('Content-Length: ' . filesize($txt_file_link));
+         ob_clean();
+         flush();
+         readfile($txt_file_link);
+         exit;
+     }
 
 }
 // echo $log;

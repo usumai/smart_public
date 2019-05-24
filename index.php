@@ -44,13 +44,14 @@ if ($result->num_rows > 0) {
 
 
 
+        $btn_excel = "<a class='dropdown-item' href='05_action.php?act=get_excel&stkm_id=".$stkm_id."'>Output to excel</a>";
 
         $perc_complete = round((($rowcount_completed/$rowcount_original)*100),2);
         $btn_export = "<a class='dropdown-item' href='05_action.php?act=get_export_stk&stkm_id=".$stkm_id."'>Export Stocktake</a>";
         $btn_action     = " <div class='dropdown'>
                                 <button class='btn btn-outline-dark dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action</button>
                                 <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-                                    $btn_toggle $btn_export
+                                    $btn_toggle $btn_export $btn_excel
                                     <a class='dropdown-item' href='#'>Archive</a>
                                 </div>
                             </div>";
