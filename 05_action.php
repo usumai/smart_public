@@ -398,6 +398,7 @@ mysqli_multi_query($con,$sql_save);
      }
 
 
+
 }elseif ($act=='get_excel'){
      $stkm_id = $_GET["stkm_id"];
 
@@ -455,6 +456,62 @@ mysqli_multi_query($con,$sql_save);
          readfile($txt_file_link);
          exit;
      }
+
+
+}elseif ($act=='save_asset_field'){
+     $ass_id        = $_POST["ass_id"];
+     $asset_vals    = $_POST["asset_vals"];
+
+     $asset_vals = json_decode($asset_vals, true);
+     $sql_list='';
+     foreach ($asset_vals as $field) {
+          $field_name    = $field[0];
+          $field_value   = $field[1];
+          $$field_name = $field[1];
+          if(substr($field_name, 0,5)=="best_"||substr($field_name, 0,8)=="res_isq_"||$field_name=="res_comment"){
+               $field_name = str_replace("best_", "res_", $field_name);
+               if (empty($field_value)) {
+                    $field_value = "null";
+               }elseif($field_value==""){
+                    $field_value = "null";
+               }else{
+                    $field_value = "'".$field_value."'";
+               }
+               $sql_list .= " $field_name=$field_value,";
+          }
+     }
+     $sql_list = rtrim($sql_list,",");
+     $sql_save = "  UPDATE smartdb.sm14_ass SET $sql_list WHERE ass_id=$ass_id";
+     mysqli_multi_query($con,$sql_save);
+     echo "\n".$sql_save;
+
+}elseif ($act=='save_asset_isq'){
+     $ass_id        = $_POST["ass_id"];
+     $isq           = $_POST["isq"];
+     $isq_res       = $_POST["isq_res"];
+     $sql_save = "  UPDATE smartdb.sm14_ass SET $isq=$isq_res WHERE ass_id=$ass_id";
+     mysqli_multi_query($con,$sql_save);
+     echo "\n".$sql_save;
+
+}elseif ($act=='save_clear_results'){
+     $ass_id        = $_GET["ass_id"];
+     $sql_save = "  UPDATE smartdb.sm14_ass SET res_create_date = null, res_create_user = null, res_reason_code = null, res_reason_code_desc = null, res_impairment_completed = null, res_completed = null, res_AssetDesc1 = null, res_AssetDesc2 = null, res_AssetMainNoText = null, res_Class = null, res_classDesc = null, res_assetType = null, res_Inventory = null, res_Quantity = null, res_SNo = null, res_InventNo = null, res_accNo = null, res_Location = null, res_Room = null, res_State = null, res_latitude = null, res_longitude = null, res_CurrentNBV = null, res_AcqValue = null, res_OrigValue = null, res_ScrapVal = null, res_ValMethod = null, res_RevOdep = null, res_CapDate = null, res_LastInv = null, res_DeactDate = null, res_PlRetDate = null, res_CCC_ParentName = null, res_CCC_GrandparentName = null, res_GrpCustod = null, res_CostCtr = null, res_WBSElem = null, res_Fund = null, res_RspCCtr = null, res_CoCd = null, res_PlateNo = null, res_Vendor = null, res_Mfr = null, res_UseNo = null, res_isq_5 = null, res_isq_6 = null, res_isq_7 = null, res_isq_8 = null, res_isq_9 = null, res_isq_10 = null, res_isq_13 = null, res_isq_14 = null, res_isq_15 = null WHERE ass_id=$ass_id";
+     mysqli_multi_query($con,$sql_save);
+     echo "\n".$sql_save;
+
+     header("Location: 11_ass.php?ass_id=".$ass_id);
+
+}elseif ($act=='save_asset_noedit'){
+     $ass_id             = $_GET["ass_id"];
+     $sql_save = "UPDATE smartdb.sm14_ass SET res_reason_code='ND10',res_completed=1 WHERE ass_id = $ass_id;";
+     echo $sql_save;
+     if (!mysqli_multi_query($con,$sql_save)){
+          $save_error = mysqli_error($con);
+          echo 'failure'.$save_error;
+     }else{
+          echo 'success';     
+     }
+     header("Location: 10_stk.php");
 
 }
 // echo $log;
