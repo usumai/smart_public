@@ -33,9 +33,13 @@ if($livecount>0){
     $btn_stk  = "<a href='10_stk.php' class='nav-link text-success'>Stocktake</a>";
     $btn_ff   = "<a href='12_ff.php' class='nav-link text-info'>Add First Found</a>";
 }else{
-    $btn_stk  = "<a href='10_stk.php' class='nav-link text-secondary' >Stocktake</a>";
-    $btn_ff   = "<a href='12_ff.php' class='nav-link text-secondary'>Add First Found</a>";
+    $btn_stk  = "<span class='nav-link text-secondary' >Stocktake</span>";
+    $btn_ff   = "<span class='nav-link text-secondary'>Add First Found</span>";
 }
+
+$btn_archive = ""
+
+
 
 ?>
 
@@ -56,7 +60,16 @@ if($livecount>0){
                     <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">v<?=$version_no?></a>
                     <div class="dropdown-menu" aria-labelledby="dropdown01"><?=$menu_software?></div>
                 </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help</a>
+                    <div class="dropdown-menu" aria-labelledby="dropdown01">
+                        <a class='dropdown-item' href='06_admin.php'>Archived Stocktakes</a>
+                    </div>
+                </li>
             </ul>
         </div>
+
+
+
     </nav>
 </header>

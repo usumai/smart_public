@@ -509,11 +509,13 @@ $flag_status 	= "	<span class='nav-link bg-danger  text-center text-light' v-if=
 
 
 <!-- 
-	Add delete first found
-Need to add validation
 Need to add camera
 Disable update function if stocktake in progress
-Add date picker
+Add raw remainder
+Add archive function
+Remove initialise
+Add fix me portal
+Add fingerprints
  -->
 
 

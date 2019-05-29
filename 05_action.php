@@ -456,6 +456,29 @@ mysqli_multi_query($con,$sql_save);
          exit;
      }
 
+}elseif ($act=='save_archive_stk'){
+     $stkm_id = $_GET["stkm_id"];
+
+
+     $sql = "SELECT * FROM smartdb.sm10_set;";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+         while($row = $result->fetch_assoc()) {
+             $active_profile_id    = $row["active_profile_id"];
+     }}
+
+     $sql_save = "UPDATE smartdb.sm13_stk SET smm_delete_date=NOW(),smm_delete_user='$active_profile_id' WHERE stkm_id = $stkm_id;";
+     echo $sql_save;
+     mysqli_multi_query($con,$sql_save);
+     header("Location: index.php");
+
+
+}elseif ($act=='save_dearchive_stk'){
+     $stkm_id = $_GET["stkm_id"];
+     $sql_save = "UPDATE smartdb.sm13_stk SET smm_delete_date=null,smm_delete_user=null WHERE stkm_id = $stkm_id;";
+     echo $sql_save;
+     mysqli_multi_query($con,$sql_save);
+     header("Location: index.php");
 
 }elseif ($act=='save_asset_edit'){
      $ass_id             = $_POST["ass_id"];

@@ -4,7 +4,7 @@
 <?php
 
 $rw_stk = "";
-$sql = "SELECT * FROM smartdb.sm13_stk WHERE smm_delete_date IS NULL;";
+$sql = "SELECT * FROM smartdb.sm13_stk WHERE smm_delete_date IS NOT NULL;";
 $result = $con->query($sql);
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
@@ -23,11 +23,9 @@ if ($result->num_rows > 0) {
         if ($stk_include==1) {
             $flag_included  = $icon_spot_green;
             $btn_toggle = "<a class='dropdown-item' href='05_action.php?act=save_stk_toggle&stkm_id=".$stkm_id."'>Exclude this stocktake</a>";
-            $btn_archive = "";
         }else{
             $flag_included  = $icon_spot_grey;
             $btn_toggle = "<a class='dropdown-item' href='05_action.php?act=save_stk_toggle&stkm_id=".$stkm_id."'>Include this stocktake</a>";
-            $btn_archive = "<a class='dropdown-item' href='05_action.php?act=save_archive_stk&stkm_id=$stkm_id'>Archive</a>";
         }
         $sql = "SELECT 
                     sum(CASE WHEN storage_id IS NOT NULL THEN 1 ELSE 0 END) AS rowcount_original,
@@ -49,12 +47,12 @@ if ($result->num_rows > 0) {
         $btn_excel = "<a class='dropdown-item' href='05_action.php?act=get_excel&stkm_id=$stkm_id'>Output to excel</a>";
         $perc_complete = round((($rowcount_completed/$rowcount_original)*100),2);
         $btn_export = "<a class='dropdown-item' href='05_action.php?act=get_export_stk&stkm_id=$stkm_id'>Export Stocktake</a>";
+        $btn_dearchive = "<a class='dropdown-item' href='05_action.php?act=save_dearchive_stk&stkm_id=$stkm_id'>Restore</a>";
 
         $btn_action     = " <div class='dropdown'>
                                 <button class='btn btn-outline-dark dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action</button>
                                 <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-                                    $btn_toggle $btn_export $btn_excel $btn_archive
-                                    
+                                    $btn_excel $btn_dearchive
                                 </div>
                             </div>";
         $rw_stk .= " <tr>
@@ -71,83 +69,39 @@ if ($result->num_rows > 0) {
 }}
 ?>
 
-<style>
-    #myProgress {
-        width: 100%;
-        background-color: #ddd;
-    }
-    #myBar {
-        width: 1%;
-        height: 30px;
-        background-color: #4CAF50;
-    }
-</style>
-
-<main role="main" class="flex-shrink-0">
-	<div class="container">
-		<h1 class="mt-5">SMART Mobile</h1>
-		<p class="lead">New auto updating software. Production edition</p>
-	</div>
-</main>
-
+<br><br>
 <div class="container">
-    <table id="table_assets" class="table">
-            <tr>
-                <td>Included</td>
-                <td>StkNo</td>
-                <td>Name</td>
-                <td align='right'>Orig</td>
-                <td align='right'>Completed</td>
-                <td align='right'>Status</td>
-                <td align='right'>FF</td>
-                <td align='right'>Other</td>
-                <td align='right'>Action</td>
-            </tr>
-        <tbody>
-            <?=$rw_stk?>
-        </tbody>
-    </table>
-    
-    <form action="05_action.php" method="post" enctype="multipart/form-data">
-        <h5 class="card-title">Upload file</h5>
-        <h6 class="card-subtitle mb-2 text-muted">Stocktake and Raw Remainder</h6>
-        <p class="card-text">
-            <input type="file" name="fileToUpload" id="fileToUpload" class="form-control-file">
-        </p>
-        <input type="hidden" name="act" value="upload_file">
-        <input type="submit" value="Upload File" name="submit" class="btn btn-link">
-    </form>
+    <div class="row">
+        <div class="col">
+            <h2>Admin center</h2>
 
-<!-- <div id="myProgress">
-    <div id="myBar"></div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col">
+
+		    <table id="table_assets" class="table">
+		            <tr>
+		                <td>Included</td>
+		                <td>StkNo</td>
+		                <td>Name</td>
+		                <td align='right'>Orig</td>
+		                <td align='right'>Completed</td>
+		                <td align='right'>Status</td>
+		                <td align='right'>FF</td>
+		                <td align='right'>Other</td>
+		                <td align='right'>Action</td>
+		            </tr>
+		        <tbody>
+		            <?=$rw_stk?>
+		        </tbody>
+		    </table>
+
+        </div>
+    </div>
+
+
 </div>
-<input type="file" onchange="readFile(this)">
-
-<script src="07_upload.js"></script>
-
-</div> -->
-
-<!-- 
-
-always working on the working_development branch
-pushing saves to the cloud working_development
-
-when ready to publish
-we make a final push to the working_dev branch keeping them both in sync
-
-we change to the master branch
-we merge the working branch into the master branch
-
-we push the new master branch to remote
-
-
-
-
- -->
-<?
-
-
-
-
-?>
 <?php include "04_footer.php"; ?>
