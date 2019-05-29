@@ -104,7 +104,7 @@ $(document).ready(function() {
                 <th class="text-center">Location<br>Room</th>
                 <th>Description<br>&nbsp;</th>
                 <th class="text-center">InventNo<br>SerialNo</th>
-                <th class="text-right">IS!<br>&nbsp;</th>
+                <th class="text-right">IS~<br>&nbsp;</th>
                 <th class="text-right">$NBV<br>&nbsp;</th>
                 <th class="text-center">Status<br>&nbsp;</th>
                 <th>Action<br>&nbsp;</th>

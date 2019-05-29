@@ -3,45 +3,40 @@ $smartm_software_version = 0.1;
 $icon_tick = "<i class='far fa-check-circle'></i>";
 $drpd_div = "<div class='dropdown-divider'></div>";
 
-$developer=false;
 $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+$btn_push_master = "";
 if (strpos($actual_link, "110_smarter_master")){
-    $developer=true;
+    $btn_push_master = $drpd_div."<button type='button' class='dropdown-item btn btn-danger' data-toggle='modal' data-target='#modal_confirm_push'>Push to master</button>";
 }
+
+
 
 
 $test_internet = @fsockopen("www.example.com", 80); //website, port  (try 80 or 443)
 if ($test_internet){
     $internet_connectivity = true; //action when connected
-//     ini_set("allow_url_fopen", 1);
-//     file_get_contents("test.txt");
-//     $jsonData = json_decode(file_get_contents('https://chart.googleapis.com/chart?cht=p3&chs=250x100&chd=t:60,40&chl=Hello|World&chof=json'));
-//     $json = file_get_contents('https://raw.githubusercontent.com/usumai/smart_public/master/08_version.php', true);
-    $site="http://www.google.com";
-    $site="https://raw.githubusercontent.com/usumai/smart_public/master/08_version.json";
-// $content = file_get_content($site);
-// echo $content;
 
-    $ch = curl_init();    
-    curl_setopt($ch,CURLOPT_URL,$site);
+    $URL = 'https://raw.githubusercontent.com/usumai/smart_public/master/08_version.json';
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_URL, $URL);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     $data = curl_exec($ch);
     curl_close($ch);
+    $json = json_decode($data, true);
+    $latest_version_no      = $json["latest_version_no"];
+    $version_publish_date   = $json["version_publish_date"];
 
-    echo "<br><br><br>[".$data."]";
-    // echo get_remote_data('http://example.com');
-    // $obj = json_decode($json);
-    // print_r($obj);
-    // $latest_version_no      = $obj->latest_version_no;
-    // $version_publish_date   = $obj->version_publish_date;
-    fclose($test_internet);
+    $sql_save = "UPDATE smartdb.sm10_set SET date_last_update_check=NOW(); ";
+    mysqli_multi_query($con,$sql_save);
+
+
 }else{
     $internet_connectivity = false; //action in connection failure
+    $latest_version_no      = null;
+    $version_publish_date   = null;
 }
-
-
-
-
-
 
 $sql = "SELECT * FROM smartdb.sm10_set;";
 $result = $con->query($sql);
@@ -51,37 +46,11 @@ if ($result->num_rows > 0) {
         $smartm_software_version    = $row["smartm_software_version"];
 }}
 if (empty($date_last_update_check)) {
-    $date_last_update_check = $version_publish_date;
+    $date_last_update_check = "Never!";
 }
+$area_version_status    = "<span class='dropdown-item'>Up to date as of $version_publish_date</span>";
+$area_last_update       = "<h6 class='dropdown-header'>Last checked for updates: $date_last_update_check</h6>";
 
-$btn_pull_master    = "";
-$area_last_update   = "<h6 class='dropdown-header'>Last checked for updates: $date_last_update_check</h6>";
-if ($latest_version_no==$smartm_software_version) {
-    $area_version_status    = "<span class='dropdown-item'>Up to date as of $version_publish_date</span>";
-}else{
-    // $btn_pull_master    = "<span class='dropdown-item'>Update to new version:v$latest_smartm_software_version</span>";
-    $btn_pull_master        = "<a class='dropdown-item' href='05_action.php?act=sys_pull_master'>Update to new version: v$latest_version_no</a>";
-}
-$btn_check_updates          = "<a class='dropdown-item' href='05_action.php?act=sys_check_updates'>Check for updates</a>";
-$btn_push_master            = $drpd_div."<a class='dropdown-item' href='05_action.php?act=sys_push_master'>Push to master</a>";
-
-if (!$internet_connectivity) {
-    $btn_check_updates  = "<span class='dropdown-item'>An internet connection is required to check for updates</span>";
-    $btn_pull_master    = "<span class='dropdown-item'>An internet connection is required to update software</span>";
-    $btn_push_master    = "<span class='dropdown-item'>An internet connection is required to push master</span>";
-}
-
-
-
-if ($developer) {//User is accessing the source code - they are a developer
-
-}else{// User is a client - hide developer options
-    $btn_push_master            = "";
-}
-
-$menu_software = $area_last_update . $btn_check_updates.$btn_pull_master.$btn_push_master ;
-
-$rw_stk = "";
 $sql = "SELECT COUNT(*) as livecount FROM smartdb.sm13_stk WHERE stk_include = 1;";
 $result = $con->query($sql);
 if ($result->num_rows > 0) {
@@ -93,13 +62,24 @@ if($livecount>0){
     // $btn_stk = "<a href='10_stk.php' class='nav-link btn btn-sm btn-success'>Stocktake</a>";
     $btn_stk  = "<a href='10_stk.php' class='nav-link text-success'>Stocktake</a>";
     $btn_ff   = "<a href='12_ff.php' class='nav-link text-info'>Add First Found</a>";
+    if ($latest_version_no>$smartm_software_version) {
+        $area_version_status = "<span class='dropdown-item'>You cannot update software when you open stocktakes</span>";
+    }
 }else{
     $btn_stk  = "<span class='nav-link text-secondary' >Stocktake</span>";
     $btn_ff   = "<span class='nav-link text-secondary'>Add First Found</span>";
+
+    if ($latest_version_no>$smartm_software_version) {
+        $area_version_status = "<button type='button' class='dropdown-item btn btn-danger' data-toggle='modal' data-target='#modal_confirm_update'>Update to v$latest_version_no</button>";
+    }
 }
 
-$btn_archive = ""
+if (!$internet_connectivity) {
+    $area_version_status    = "<span class='dropdown-item'>An internet connection is required to update software</span>";
+}
 
+
+$menu_software = $area_last_update . $area_version_status.$btn_push_master ;
 
 
 ?>
@@ -134,3 +114,49 @@ $btn_archive = ""
 
     </nav>
 </header>
+
+
+<br><br><br>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal_confirm_update" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Update to latest version</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="lead">Updating to the latest version will delete all data on this device. Are you Sure you want to proceed with the update?<br><br>Please keep device connected to the internet until the update is finished.</p>     
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <a type="button" class="btn btn-danger" href='05_action.php?act=sys_pull_master'>Update</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal_confirm_push" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Push this version to the master</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">  
+        <p class="lead">This will overwrite the existing master file. Only do this if you are a guru developer.<br><br>Please keep device connected to the internet until the update is finished.</p>  
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <a type="button" class="btn btn-danger" href='05_action.php?act=sys_push_master'>Update</a>
+      </div>
+    </div>
+  </div>
+</div>
