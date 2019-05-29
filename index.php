@@ -32,7 +32,7 @@ if ($result->num_rows > 0) {
                     sum(CASE WHEN first_found_flag = 1 THEN 1 ELSE 0 END) AS rowcount_firstfound,
                     sum(CASE WHEN res_completed = 1 THEN 1 ELSE 0 END) AS rowcount_completed,
                     sum(CASE WHEN storage_id IS NULL AND first_found_flag <> 1 THEN 1 ELSE 0 END) AS rowcount_other
-                FROM smartdb.sm14_ass WHERE stkm_id=$stkm_id";
+                FROM smartdb.sm14_ass WHERE stkm_id=$stkm_id AND delete_date IS NULL";
         $result2 = $con->query($sql);
         if ($result2->num_rows > 0) {
         while($row2 = $result2->fetch_assoc()) {

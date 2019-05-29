@@ -30,9 +30,11 @@ if ($result->num_rows > 0) {
 }}
 if($livecount>0){
     // $btn_stk = "<a href='10_stk.php' class='nav-link btn btn-sm btn-success'>Stocktake</a>";
-    $btn_stk = "<a href='10_stk.php' class='nav-link text-success'>Stocktake</a>";
+    $btn_stk  = "<a href='10_stk.php' class='nav-link text-success'>Stocktake</a>";
+    $btn_ff   = "<a href='12_ff.php' class='nav-link text-info'>Add First Found</a>";
 }else{
-    $btn_stk = "<a href='10_stk.php' class='nav-link text-secondary' >Stocktake</a>";
+    $btn_stk  = "<a href='10_stk.php' class='nav-link text-secondary' >Stocktake</a>";
+    $btn_ff   = "<a href='12_ff.php' class='nav-link text-secondary'>Add First Found</a>";
 }
 
 ?>
@@ -40,29 +42,21 @@ if($livecount>0){
 <body class="d-flex flex-column h-100">
 <header>
   <!-- Fixed navbar -->
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <a class="navbar-brand" href="index.php">smartM</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <?=$btn_stk?>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="05_action.php?act=sys_initialise">Initialise</a>
-        </li>
-        <!-- <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li> -->
-        <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">v<?=$version_no?></a>
-        <div class="dropdown-menu" aria-labelledby="dropdown01">
-          <?=$menu_software?>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="index.php">smartM</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><?=$btn_stk?></li>
+                <li class="nav-item"><a class="nav-link" href="05_action.php?act=sys_initialise">Initialise</a></li>
+                <li class="nav-item"><?=$btn_ff?></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">v<?=$version_no?></a>
+                    <div class="dropdown-menu" aria-labelledby="dropdown01"><?=$menu_software?></div>
+                </li>
+            </ul>
         </div>
-      </li>
-      </ul>
-    </div>
-  </nav>
+    </nav>
 </header>

@@ -191,7 +191,80 @@ mysqli_multi_query($con,$sql_save);
                     PRIMARY KEY (`ass_id`),
                     UNIQUE KEY `ass_id_UNIQUE` (`ass_id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
-          mysqli_multi_query($con,$sql_save);   
+          mysqli_multi_query($con,$sql_save); 
+
+
+          $sql_save = "CREATE TABLE $dbname.sm15_rc (
+                         `reason_code_id` INT(11) NOT NULL AUTO_INCREMENT,
+                         `res_reason_code` VARCHAR(255) NULL, 
+                         `rc_desc` VARCHAR(255) NULL, 
+                         `rc_long_desc` VARCHAR(255) NULL, 
+                         `rc_examples` VARCHAR(255) NULL, 
+                         `rc_action` VARCHAR(255) NULL,
+                         `rc_section` VARCHAR(255) NULL,
+                         PRIMARY KEY (`reason_code_id`),
+                         UNIQUE INDEX `reason_code_id_UNIQUE` (`reason_code_id` ASC));";
+          echo "<br><br>".$sql_save;
+          mysqli_multi_query($con,$sql_save);
+
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES  ('ND10','No financial discrepancies','Asset Found - No Action required','Asset found with all details correct.','ND','ND'); "; 
+          echo $sql_save;
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES  ('NC10','Not In Count','Assets excluded from count.','Asset where the site is inaccessible, i.e. remote locality or project construction areas.','NIC','ERR'); ";
+          mysqli_multi_query($con,$sql_save); 
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('AF10','Asset Found - Ownership','Asset ownership error. The asset management system to be updated to reflect correct owners.','Asset found with incorrect Cost Centre Code.','SAV','ERR'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('AF15','Asset Found - Incorrect Register','Asset found - asset accounted for in the incorrect asset register/system.','An asset found that should be accounted for in MILIS and not ROMAN.','SAV','ERR'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('AF20','Asset Found - Location Transfers','Asset found, however, asset register indicates the asset resides in another base/site.','Demountable moved between Defence properties without asset transfer documentation sent to DFG.','SAV','ERR'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF10','Asset First Found - Project Acquisition','Asset first found - Procured under a National Project Works.','Project asset not brought on to the asset register/system, not communicated to be added to the asset register/system.','SAV','FF'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF15','Asset First Found - Local Estate Works','Asset first found - Procured under Local Estate Works','Asset acquired under the local estate works contract (repair/replacement). Procurement not communicated to DFG, and not added to the asset register/system.','SAV','FF'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF20','Asset First Found - Externally Acquired','Asset first found - asset received from organisation external to Defence.','Asset acquired from another government department without documentation. Asset could have been `Gifted to Defence`.','SAV','FF'); ";
+          mysqli_multi_query($con,$sql_save); 
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF25','Asset First Found - Unexplained','Asset first found - Unexplained.','Asset purchase with no history, no explanation as to its existence. Not communicated to DFG, and not added to the FAR','SAV','FF'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF10','Asset Not Found - Project Disposal','Asset not found - Disposal under National Project','Asset disposed under a National Project not communicated to DFG, not removed from the asset register/system.','SAV','NF'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF15','Asset Not Found - Local Disposal','Asset not found - Locally disposed asset.','Asset disposal, failed to advise DFG of disposal, not removed from the asset register/system.','SAV','NF'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF20','Asset Not Found - Trade in','Asset not found - Procurement Trade-In','Asset used as `Traded-in` in the procurement process, asset owner failed to follow correct disposal process, not communicated to DFG, not removed from the asset register/system.','SAV','NF'); ";
+          mysqli_multi_query($con,$sql_save); 
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF25','Asset Not Found - Local Estate Works','Asset not found - Disposal under Local Estate Works','Asset disposed under a local works, not communicated to DFG, not removed from the asset register/system.','SAV','NF'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF30','Asset Not Found - Unexplained','Asset not found - Unexplained','Asset owner cannot provide information as to its whereabouts.','SAV','NF'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('PE10','Prior Stocktake Error','Stocktake Adjustment error in the asset register/ system, where the error has occurred as a direct result of a previous or current stocktake adjustment.','Reversal of a `write-on` action from a previous stocktake. AFF that should not have been created.','SAV','ERR'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE10','Asset Duplication - Different Register','Errors found for the same asset record in separate registers/ systems/company codes where the error is a direct result of register actions by DFG Register Authority.','Duplication: assets recorded and financially accounted for in multiple register/ systems (ROMAN and MILIS), or in multiple Company Codes, (1000 and 4100).','SAV','ERR'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE15','Asset Duplication - Same Register','Errors found for the same asset record in same asset register/ system, where the error is a direct result of register actions by the Register Authority','Duplication: assets recorded twice for the same physical asset. Assets created as a result of revaluation adjustments.','SAV','ERR'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF99','DLIAA excluded adjustments.','Authorised SAV discrepancies forward to DFG for ROMAN action advice. Adjustments to be conducted by DFG.','ROMAN adjustments relating to Project rollouts.','NIC','ERR'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE20','Asset register Error','General non-financial related errors.','Simple record updates such as, location data, barcode updates, transcription, spelling errors, description i.e. asset description not in UPPER CASE.','ND','ERR'); "; 
+          mysqli_multi_query($con,$sql_save);
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE25','Asset Split','Errors relating to assets that may form part of Merge/Split process.','A Split error is where a single asset record may have been initially created, however the assets characteristics distinctly display two separate physical assets','SAV','ERR'); ";
+          mysqli_multi_query($con,$sql_save); 
+          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE30','Asset Merge','Errors relating to assets that may form part of Merge/Split process.','A Merge error is where two asset records may have been initially created, when it should have been a single asset record;','SAV','ERR'); "; 
+          // echo "<br><br>".$sql_save;
+          mysqli_multi_query($con,$sql_save);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }//End create database area
 
      header("Location: index.php");
@@ -307,7 +380,7 @@ mysqli_multi_query($con,$sql_save);
      $txt_file_link = 'SMARTm_file_'.$date_disp.'.json';
      $fp = fopen($txt_file_link, 'w');
 
-     $sql = "SELECT *  FROM smartdb.sm14_ass WHERE stkm_id = $stkm_id ;";
+     $sql = "SELECT *  FROM smartdb.sm14_ass WHERE stkm_id = $stkm_id AND delete_date IS NULL ;";
      $arr_asset = array();
      $result = $con->query($sql);
      if ($result->num_rows > 0) {
@@ -339,7 +412,7 @@ mysqli_multi_query($con,$sql_save);
                    sum(CASE WHEN first_found_flag = 1 THEN 1 ELSE 0 END) AS rowcount_firstfound,
                    sum(CASE WHEN res_completed = 1 THEN 1 ELSE 0 END) AS rowcount_completed,
                    sum(CASE WHEN storage_id IS NULL AND first_found_flag <> 1 THEN 1 ELSE 0 END) AS rowcount_other
-               FROM smartdb.sm14_ass";
+               FROM smartdb.sm14_ass WHERE stkm_id=$stkm_id AND delete_date IS NULL";
      $result2 = $con->query($sql);
      if ($result2->num_rows > 0) {
        while($row2 = $result2->fetch_assoc()) {
@@ -475,6 +548,9 @@ mysqli_multi_query($con,$sql_save);
                }elseif($field_value==""){
                     $field_value = "null";
                }else{
+                    $field_value = str_replace("'", "\'", $field_value);
+                    $field_value = str_replace('"', '\"', $field_value);
+
                     $field_value = "'".$field_value."'";
                }
                $sql_list .= " $field_name=$field_value,";
@@ -486,10 +562,12 @@ mysqli_multi_query($con,$sql_save);
      echo "\n".$sql_save;
 
 }elseif ($act=='save_asset_isq'){
-     $ass_id        = $_POST["ass_id"];
-     $isq           = $_POST["isq"];
-     $isq_res       = $_POST["isq_res"];
-     $sql_save = "  UPDATE smartdb.sm14_ass SET $isq=$isq_res WHERE ass_id=$ass_id";
+     $ass_id                       = $_POST["ass_id"];
+     $isq                          = $_POST["isq"];
+     $isq_res                      = $_POST["isq_res"];
+     $res_impairment_completed     = $_POST["res_impairment_completed"];
+     $res_completed                = $_POST["res_completed"];
+     $sql_save = "  UPDATE smartdb.sm14_ass SET $isq=$isq_res, res_impairment_completed=$res_impairment_completed, res_completed=$res_completed WHERE ass_id=$ass_id";
      mysqli_multi_query($con,$sql_save);
      echo "\n".$sql_save;
 
@@ -512,6 +590,66 @@ mysqli_multi_query($con,$sql_save);
           echo 'success';     
      }
      header("Location: 10_stk.php");
+
+}elseif ($act=='save_newfirstfound'){
+     $res_reason_code    = $_POST["res_reason_code"];
+     $stkm_id            = $_POST["stkm_id"];
+     $asset_template     = $_POST["asset_template"];
+     
+     $sql = "SELECT * FROM smartdb.sm10_set;";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+         while($row = $result->fetch_assoc()) {
+             $active_profile_id    = $row["active_profile_id"];
+     }}
+
+     $sql_save=" INSERT INTO smartdb.sm14_ass 
+     (stkm_id, create_date, create_user, stk_include, Asset, genesis_cat, first_found_flag, res_create_date, res_create_user,
+     res_reason_code, res_completed, res_AssetDesc1) 
+     VALUES('".$stkm_id."', NOW(), '".$active_profile_id."',1,'First found','First found',1,NOW(), '".$active_profile_id."','".$res_reason_code."', 1, '".$asset_template."'); ";
+     mysqli_multi_query($con,$sql_save);
+     echo "<br><br>".$sql_save;
+
+     $sql = "SELECT * FROM smartdb.sm14_ass ORDER BY ass_id DESC LIMIT 1;";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+         while($row = $result->fetch_assoc()) {
+             $new_ass_id    = $row["ass_id"];
+     }}
+
+
+     // $sql_save_history = "INSERT INTO ".$dbname.".smart_l10_history (create_date, create_user, history_type, history_desc, history_link) VALUES ( NOW(),'".$create_user."','Created a first found','Ass_id ".$last_ass_id." was created as a first found:".$ff_type."','102_asset.php?ass_id=".$last_ass_id."');";
+     // mysqli_multi_query($con,$sql_save_history);
+
+
+
+
+
+
+
+     header("Location: 11_ass.php?ass_id=".$new_ass_id);
+
+}elseif ($act=='save_delete_first_found'){
+     $ass_id             = $_GET["ass_id"];
+
+     $sql = "SELECT * FROM smartdb.sm10_set;";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+         while($row = $result->fetch_assoc()) {
+             $active_profile_id    = $row["active_profile_id"];
+     }}
+
+     $sql_save = "UPDATE smartdb.sm14_ass SET delete_date=NOW(), delete_user='$active_profile_id' WHERE ass_id = $ass_id;";
+     echo $sql_save;
+     if (!mysqli_multi_query($con,$sql_save)){
+          $save_error = mysqli_error($con);
+          echo 'failure'.$save_error;
+     }else{
+          echo 'success';     
+     }
+     header("Location: 10_stk.php");
+
+
 
 }
 // echo $log;

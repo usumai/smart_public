@@ -44,6 +44,9 @@ $sql = "SELECT *,
 			CASE WHEN res_Vendor IS NULL THEN Vendor ELSE res_Vendor END AS best_Vendor,
 			CASE WHEN res_Mfr IS NULL THEN Mfr ELSE res_Mfr END AS best_Mfr,
 			CASE WHEN res_UseNo IS NULL THEN UseNo ELSE res_UseNo END AS best_UseNo
+
+
+
 		FROM smartdb.sm14_ass 
 		WHERE ass_id=$ass_id";
 $arr_asset = array();
@@ -54,16 +57,40 @@ if ($result->num_rows > 0) {
 }}
 
 $arr_asset = $arrsql[0];
-$arr_asset['ar.lock_all']				= true;
-$arr_asset['ar.lock_limited']			= true;
+$arr_asset['ar.lock_all']					= true;
+$arr_asset['ar.lock_limited']				= true;
 
-$arr_asset['ar.show_btnset']			= true;
-$arr_asset['ar.show_second_choice']		= false;
-$arr_asset['ar.show_second_choice_nf']	= false;
-$arr_asset['ar.show_second_choice_err']	= false;
+$arr_asset['ar.show_btnset']				= true;
+$arr_asset['ar.show_fieldset']				= true;
+$arr_asset['ar.show_second_choice_nf']		= false;
+$arr_asset['ar.show_second_choice_err']		= false;
+$arr_asset['ar.show_impaired_curr']			= false;
+$arr_asset['ar.show_impaired_prev']			= false;
+$arr_asset['ar.show_clear_btn']				= false;
+
+$arr_asset['ar.selected_reason_code']		= false;
+$arr_asset['ar.show_nyc']					= false;
+$arr_asset['ar.show_complete']				= false;
+$arr_asset['ar.show_incomplete_impaired']	= false;
 
 
 
+
+
+$arr_asset['rcs'] = [];
+$sql = "SELECT * FROM smartdb.sm15_rc ";
+$result = $con->query($sql);
+if ($result->num_rows > 0) {
+ while($row = $result->fetch_assoc()) {
+    $list_res_reason_code 	= $row['res_reason_code'];
+    $list_rc_desc 			= $row['rc_desc'];
+    $rc_long_desc 			= $row['rc_long_desc'];
+    $rc_examples 			= $row['rc_examples'];
+
+	$arr_asset['rcs'][$list_res_reason_code]['rc_desc'] 		= $list_rc_desc;
+	$arr_asset['rcs'][$list_res_reason_code]['rc_long_desc'] 	= $rc_long_desc;
+	$arr_asset['rcs'][$list_res_reason_code]['rc_examples'] 	= $rc_examples;
+}}
 
 
 $arr_asset['completeness'] 	= false;
@@ -86,23 +113,31 @@ $btn_found_ne = '<br><br><br><br>';
 if (empty($arrsql[0]['impairment_code'])) {
 	$btn_found_ne 	= "<a class='nav-link btn btn-success' href='05_action.php?act=save_asset_noedit&ass_id=$ass_id'>Sighted<br>No&nbsp;Edit</a><br>";	
 }
-$btn_found_e 	= "<button type='button' class='nav-link btn' v-on:click='select_reason_code(`nd10`)' style='background-color:#78e090!important'>Sighted<br>Edit</button><br>";
+$btn_found_e 	= "<button type='button' class='nav-link btn' v-on:click='save_reason_code(`ND10`)' style='background-color:#78e090!important'>Sighted<br>Edit</button><br>";
 
-$btn_notfound 	= "<button type='button' class='nav-link btn btn-warning' v-on:click='select_reason_code(`Not Found`)' >Not<br>found</button><br>";
-$btn_error 		= "<button type='button' class='nav-link btn btn-primary' v-on:click='select_reason_code(`Asset Error`)' >Asset<br>Error</button><br>";
+$btn_notfound 	= "<button type='button' class='nav-link btn btn-warning' v-on:click='stateful(`Not Found`)' >Not<br>found</button><br>";
+$btn_error 		= "<button type='button' class='nav-link btn btn-primary' v-on:click='stateful(`Asset Error`)' >Asset<br>Error</button><br>";
 // $btnset 		= "<div class='col-12 col-md-1 col-xl-1 bd-sidebar'  ><nav class='nav flex-column'>".$btn_found_ne.$btn_found_e.$btn_notfound.$btn_error."</nav></div>";
 $btnset 		= $btn_found_ne.$btn_found_e.$btn_notfound.$btn_error;
 
-$btn_clear = "	<div class='dropdown' v-if='!ar.vis_reason_code_buttons'>
+$btn_clear = "	<div class='dropdown' v-if='ar.show_clear_btn'>
 				    <button class='nav-link btn btn-outline-dark dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Clear</button>
 				    <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
 				        <a class='dropdown-item bg-danger text-light' href='05_action.php?act=save_clear_results&ass_id=$ass_id'>I'm sure</a>
 				    </div>
 				</div>";
 
-$btn_cancel = "<button type='button' class='btn btn-danger' v-if='ar.show_second_choice' v-on:click='clear_second_choice' >Cancel</button>";
+$btn_cancel 	= "<button type='button' class='btn btn-danger' v-if='ar.show_cancel_btn' v-on:click='stateful(null)' >Cancel</button>";
+$btn_deleteff 	= "	<div class='dropdown' v-if='ar.show_delete_btn'>
+					    <button class='nav-link btn btn-danger dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Delete</button>
+					    <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
+					        <a class='dropdown-item bg-danger text-light' href='05_action.php?act=save_delete_first_found&ass_id=$ass_id'>I'm sure</a>
+					    </div>
+					</div>";;
 
-$flag_status 	= "<span class='nav-link bg-danger text-center text-light' v-if='!ar.res_completed'>NYC</span><span class='nav-link bg-success text-center text-light' v-if='ar.res_completed'>Complete</span><br>";
+$flag_status 	= "	<span class='nav-link bg-danger  text-center text-light' v-if='ar.show_nyc'>NYC</span>
+					<span class='nav-link bg-success text-center text-light' v-if='ar.show_complete'>Complete</span>
+					<a class='nav-link bg-danger text-center text-light' href='#impairment' v-if='ar.show_incomplete_impaired'>Impaired!</a><br>";
 ?>
 
 <style type="text/css">
@@ -115,13 +150,31 @@ $flag_status 	= "<span class='nav-link bg-danger text-center text-light' v-if='!
 	}
 </style>
 
-<br><br>
+
+
+  <script>
+  $( function() {
+    $( ".datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+  } );
+  </script>
+
+
+
+
+
+
+
+
 <script src="includes/vue.js"></script>
+<script src="includes/vuejs-datepicker.min.js"></script>
+<br><br>
+
 <div class='container-fluid' id="asset_page">
 	<div class='row'>
 		<div class='col-12 col-md-1 col-xl-1 bd-sidebar'><nav class='nav flex-column'><?=$flag_status?></nav></div>
 		<div class='col-10'>
 			<h2>Asset:{{ ar.Asset }}-{{ ar.Subnumber }}: {{ ar.AssetDesc1 }} ({{ ar.AssetDesc2 }})</h2>
+			<p v-if='ar.res_reason_code'>{{ ar.res_reason_code }}: {{ ar.selected_rc_details }}</p>
 		</div>
 		<div class='col-12 col-md-1 col-xl-1 bd-sidebar'><nav class='nav flex-column'><?=$flag_status?></nav></div>
 	</div>
@@ -129,136 +182,133 @@ $flag_status 	= "<span class='nav-link bg-danger text-center text-light' v-if='!
 	<div class='row'>
 		<div class='col-12 col-md-1 col-xl-1 bd-sidebar'  >
 			<nav class='nav flex-column'>
-				<span  v-if='!ar.show_btnset'><?=$btnset?></span>
+				<span  v-if='ar.show_btnset'><?=$btnset?></span>
 			</nav>
 			<?=$btn_clear?>
 			<?=$btn_cancel?>
+			<?=$btn_deleteff?>
 		</div>
 		<!-- <div class='col-1'><?=$btnset?></div> -->
 		<div class='col-10' >
 
-			<span v-if="ar.show_second_choice">
-				<span v-if="ar.show_second_choice_nf">
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF10')">NF10</button></div>
-						<div class='col-8'>
-							<b>Asset Not Found - Project Disposal.</b> Asset not found - Disposal under National Project	Asset disposed under a National Project not communicated to DFG, not removed from the asset register/system. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF10')">NF10</button></div>
+			<span v-if="ar.show_second_choice_nf">
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF10')">NF10</button></div>
+					<div class='col-8'>
+						<b>Asset Not Found - Project Disposal.</b> Asset not found - Disposal under National Project	Asset disposed under a National Project not communicated to DFG, not removed from the asset register/system. (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF15')">NF15</button></div>
-						<div class='col-8'>
-							<b>Asset Not Found - Local Disposal.</b> Asset not found - Locally disposed asset.	Asset disposal, failed to advise DFG of disposal, not removed from the asset register/system. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF15')">NF15</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF10')">NF10</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF15')">NF15</button></div>
+					<div class='col-8'>
+						<b>Asset Not Found - Local Disposal.</b> Asset not found - Locally disposed asset.	Asset disposal, failed to advise DFG of disposal, not removed from the asset register/system. (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF20')">NF20</button></div>
-						<div class='col-8'>
-							<b>Asset Not Found - Trade in.</b> Asset not found - Procurement Trade-In	Asset used as `Traded-in` in the procurement process, asset owner failed to follow correct disposal process, not communicated to DFG, not removed from the asset register/system. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF20')">NF20</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF15')">NF15</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF20')">NF20</button></div>
+					<div class='col-8'>
+						<b>Asset Not Found - Trade in.</b> Asset not found - Procurement Trade-In	Asset used as `Traded-in` in the procurement process, asset owner failed to follow correct disposal process, not communicated to DFG, not removed from the asset register/system. (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF25')">NF25</button></div>
-						<div class='col-8'>
-							<b>Asset Not Found - Local Estate Works.</b> Asset not found - Disposal under Local Estate Works	Asset disposed under a local works, not communicated to DFG, not removed from the asset register/system. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF25')">NF25</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF20')">NF20</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF25')">NF25</button></div>
+					<div class='col-8'>
+						<b>Asset Not Found - Local Estate Works.</b> Asset not found - Disposal under Local Estate Works	Asset disposed under a local works, not communicated to DFG, not removed from the asset register/system. (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF30')">NF30</button></div>
-						<div class='col-8'>
-							<b>Asset Not Found - Unexplained.</b> Asset not found - Unexplained	Asset owner cannot provide information as to its whereabouts. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF30')">NF30</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF25')">NF25</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NF30')">NF30</button></div>
+					<div class='col-8'>
+						<b>Asset Not Found - Unexplained.</b> Asset not found - Unexplained	Asset owner cannot provide information as to its whereabouts. (SAV)
 					</div>
-				</span>
-				<span v-if="ar.show_second_choice_err">
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NC10')">NC10</button></div>
-						<div class='col-8'>
-							<b>Not In Count</b>	Assets excluded from count.	Asset where the site is inaccessible, i.e. remote locality or project construction areas. (NIC report)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NC10')">NC10</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NF30')">NF30</button></div>
+				</div>
+			</span>
+			<span v-if="ar.show_second_choice_err">
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('NC10')">NC10</button></div>
+					<div class='col-8'>
+						<b>Not In Count</b>	Assets excluded from count.	Asset where the site is inaccessible, i.e. remote locality or project construction areas. (NIC report)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('AF10')">AF10</button></div>
-						<div class='col-8'>
-							<b>Asset Found - Ownership	Asset ownership error.</b>	The asset management system to be updated to reflect correct owners.	Asset found with incorrect Cost Centre Code. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('AF10')">AF10</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('NC10')">NC10</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('AF10')">AF10</button></div>
+					<div class='col-8'>
+						<b>Asset Found - Ownership	Asset ownership error.</b>	The asset management system to be updated to reflect correct owners.	Asset found with incorrect Cost Centre Code. (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('AF15')">AF15</button></div>
-						<div class='col-8'>
-							<b>Asset Found - Incorrect Register.</b> Asset found - asset accounted for in the incorrect asset register/system.	An asset found that should be accounted for in MILIS and not ROMAN. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('AF15')">AF15</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('AF10')">AF10</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('AF15')">AF15</button></div>
+					<div class='col-8'>
+						<b>Asset Found - Incorrect Register.</b> Asset found - asset accounted for in the incorrect asset register/system.	An asset found that should be accounted for in MILIS and not ROMAN. (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('AF20')">AF20</button></div>
-						<div class='col-8'>
-							<b>Asset Found - Location Transfers.</b> Asset found, however, asset register indicates the asset resides in another base/site.	Demountable moved between Defence properties without asset transfer documentation sent to DFG. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('AF20')">AF20</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('AF15')">AF15</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('AF20')">AF20</button></div>
+					<div class='col-8'>
+						<b>Asset Found - Location Transfers.</b> Asset found, however, asset register indicates the asset resides in another base/site.	Demountable moved between Defence properties without asset transfer documentation sent to DFG. (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('PE10')">PE10</button></div>
-						<div class='col-8'>
-							<b>Prior Stocktake Error.</b> Stocktake Adjustment error in the asset register/ system, where the error has occurred as a direct result of a previous or current stocktake adjustment.	Reversal of a `write-on` action from a previous stocktake. AFF that should not have been created. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('PE10')">PE10</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('AF20')">AF20</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('PE10')">PE10</button></div>
+					<div class='col-8'>
+						<b>Prior Stocktake Error.</b> Stocktake Adjustment error in the asset register/ system, where the error has occurred as a direct result of a previous or current stocktake adjustment.	Reversal of a `write-on` action from a previous stocktake. AFF that should not have been created. (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE10')">RE10</button></div>
-						<div class='col-8'>
-							<b>Asset Duplication - Different Register.</b> Errors found for the same asset record in separate registers/ systems/company codes where the error is a direct result of register actions by DFG Register Authority.	Duplication: assets recorded and financially accounted for in multiple register/ systems (ROMAN and MILIS), or in multiple Company Codes, (1000 and 4100). (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE10')">RE10</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('PE10')">PE10</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE10')">RE10</button></div>
+					<div class='col-8'>
+						<b>Asset Duplication - Different Register.</b> Errors found for the same asset record in separate registers/ systems/company codes where the error is a direct result of register actions by DFG Register Authority.	Duplication: assets recorded and financially accounted for in multiple register/ systems (ROMAN and MILIS), or in multiple Company Codes, (1000 and 4100). (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE15')">RE15</button></div>
-						<div class='col-8'>
-							<b>Asset Duplication - Same Register.</b> Errors found for the same asset record in same asset register/ system, where the error is a direct result of register actions by the Register Authority	Duplication: assets recorded twice for the same physical asset. Assets created as a result of revaluation adjustments. (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE15')">RE15</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE10')">RE10</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE15')">RE15</button></div>
+					<div class='col-8'>
+						<b>Asset Duplication - Same Register.</b> Errors found for the same asset record in same asset register/ system, where the error is a direct result of register actions by the Register Authority	Duplication: assets recorded twice for the same physical asset. Assets created as a result of revaluation adjustments. (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('FF99')">FF99</button></div>
-						<div class='col-8'>
-							<b>DLIAA excluded adjustments.</b> Authorised SAV discrepancies forward to DFG for ROMAN action advice. Adjustments to be conducted by DFG.	ROMAN adjustments relating to Project rollouts. (NIC)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('FF99')">FF99</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE15')">RE15</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('FF99')">FF99</button></div>
+					<div class='col-8'>
+						<b>DLIAA excluded adjustments.</b> Authorised SAV discrepancies forward to DFG for ROMAN action advice. Adjustments to be conducted by DFG.	ROMAN adjustments relating to Project rollouts. (NIC)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE20')">RE20</button></div>
-						<div class='col-8'>
-							<b>Asset register Error.</b> General non-financial related errors.	Simple record updates such as, location data, barcode updates, transcription, spelling errors, description i.e. asset description not in UPPER CASE. (ND)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE20')">RE20</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('FF99')">FF99</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE20')">RE20</button></div>
+					<div class='col-8'>
+						<b>Asset register Error.</b> General non-financial related errors.	Simple record updates such as, location data, barcode updates, transcription, spelling errors, description i.e. asset description not in UPPER CASE. (ND)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE25')">RE25</button></div>
-						<div class='col-8'>
-							<b>Asset Split.</b> Errors relating to assets that may form part of Merge/Split process.	A Split error is where a single asset record may have been initially created, however the assets characteristics distinctly display two separate physical assets (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE25')">RE25</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE20')">RE20</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE25')">RE25</button></div>
+					<div class='col-8'>
+						<b>Asset Split.</b> Errors relating to assets that may form part of Merge/Split process.	A Split error is where a single asset record may have been initially created, however the assets characteristics distinctly display two separate physical assets (SAV)
 					</div>
-					<div class='row'>
-						<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE30')">RE30</button></div>
-						<div class='col-8'>
-							<b>Asset Merge.</b> Errors relating to assets that may form part of Merge/Split process.	A Merge error is where two asset records may have been initially created, when it should have been a single asset record (SAV)
-						</div>
-						<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE30')">RE30</button></div>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE25')">RE25</button></div>
+				</div>
+				<div class='row'>
+					<div class='col-2'><button class="btn btn-info" v-on:click="save_reason_code('RE30')">RE30</button></div>
+					<div class='col-8'>
+						<b>Asset Merge.</b> Errors relating to assets that may form part of Merge/Split process.	A Merge error is where two asset records may have been initially created, when it should have been a single asset record (SAV)
 					</div>
-
-
-				</span>
+					<div class='col-2 text-right'><button class="btn btn-info" v-on:click="save_reason_code('RE30')">RE30</button></div>
+				</div>
 			</span>
 
-			<span v-if="!ar.show_second_choice">
+			<span v-if="ar.show_fieldset">
 				<div class='row'>
 					<div class='col-4'>
 						<div class="form-group"><label>Asset Description</label><input type="text" v-model="ar.best_AssetDesc1" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
@@ -272,23 +322,25 @@ $flag_status 	= "<span class='nav-link bg-danger text-center text-light' v-if='!
 						<div class="form-group"><label>Location</label><input type="text" v-model="ar.best_Location" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
 						<div class="form-group"><label>Level/Room</label><input type="text" v-model="ar.best_Room" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
 						<div class="form-group"><label>State</label><input type="text" v-model="ar.best_State" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>latitude</label><input type="text" v-model="ar.best_latitude" class= "form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>longitude</label><input type="text" v-model="ar.best_longitude" class= "form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
+						<div class="form-group"><label>latitude</label><input type="text" v-model="ar.best_latitude" class= "form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_latitude)}"></div>
+						<div class="form-group"><label>longitude</label><input type="text" v-model="ar.best_longitude" class= "form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_longitude)}"></div>
 					</div>
 					<div class='col-2'>
 						<div class="form-group"><label>Class</label><input type="text" v-model="ar.best_Class" class="form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
 						<div class="form-group"><label>accNo</label><input type="text" v-model="ar.best_accNo" class="form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>CapDate</label><input type="text" v-model="ar.best_CapDate" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>LastInv</label><input type="text" v-model="ar.best_LastInv" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>DeactDate</label><input type="text" v-model="ar.best_DeactDate" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>PlRetDate</label><input type="text" v-model="ar.best_PlRetDate" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
+						<div class="form-group"><label>CapDate</label><input type="text" v-model="ar.best_CapDate" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" ></div>
+						<div class="form-group"><label>LastInv (YYYY-MM-DD)</label><input type="text" v-model="ar.best_LastInv" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" ></div>
+						<div class="form-group"><label>DeactDate</label><input type="text" v-model="ar.best_DeactDate" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" ></div>
+						<div class="form-group"><label>PlRetDate</label><input type="text" v-model="ar.best_PlRetDate" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" ></div>
+						<!-- <div class="form-group"><label>DeactDate</label><vuejs-datepicker  v-model="ar.best_DeactDate"  v-on:change="sync_data"></vuejs-datepicker></div> -->
+							<!-- <input type="text" class= "form-control datepicker" :disabled="ar.lock_all" readonly> -->
 					</div>
 					<div class='col-2'>
-						<div class="form-group"><label>Quantity</label><input type="text" v-model="ar.best_Quantity" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>CurrentNBV</label><input type="text" v-model="ar.best_CurrentNBV" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>AcqValue</label><input type="text" v-model="ar.best_AcqValue" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>OrigValue</label><input type="text" v-model="ar.best_OrigValue" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>ScrapVal</label><input type="text" v-model="ar.best_ScrapVal" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
+						<div class="form-group"><label>Quantity</label><input type="text" v-model="ar.best_Quantity" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_Quantity)}"></div>
+						<div class="form-group"><label>CurrentNBV</label><input type="text" v-model="ar.best_CurrentNBV" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_CurrentNBV)}"></div>
+						<div class="form-group"><label>AcqValue</label><input type="text" v-model="ar.best_AcqValue" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_AcqValue)}"></div>
+						<div class="form-group"><label>OrigValue</label><input type="text" v-model="ar.best_OrigValue" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_OrigValue)}"></div>
+						<div class="form-group"><label>ScrapVal</label><input type="text" v-model="ar.best_ScrapVal" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_ScrapVal)}"></div>
 						<div class="form-group"><label>ValMethod</label><input type="text" v-model="ar.best_ValMethod" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
 					</div>
 					<div class='col-2'>
@@ -301,7 +353,7 @@ $flag_status 	= "<span class='nav-link bg-danger text-center text-light' v-if='!
 				</div>
 				<div class='row'>
 					<div class='col-12'>
-						<div class="form-group"><label>Comments</label>
+						<div class="form-group"><h2>Comments</h2>
 							<!-- <input type="text"> -->
 							<textarea v-model="ar.res_comment" class= "form-control" v-on:keyup="sync_data" rows='5'></textarea>
 						</div>
@@ -310,16 +362,13 @@ $flag_status 	= "<span class='nav-link bg-danger text-center text-light' v-if='!
 			</span>
 
 
-			<span v-if="ar.impairment_code=='impaired_curr'&&ar.res_reason_code">
-				<div class='row'>
-					<div class='col-12'>
-						<div>Impairment</div>
-					</div>
+			<div class='row' v-if="ar.show_impaired_curr||ar.show_impaired_prev">
+				<div class='col-12'>
+					<h2>Impairment</h2>
 				</div>
+			</div>
 
-
-
-
+			<span v-if="ar.show_impaired_curr">
 				<div class='row'>
 					<div class='col-2'>
 						<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_5!=1, 'btn-dark': ar.res_isq_5==1}"  v-on:click="save_is_result('res_isq_5',1)">Yes</button>
@@ -407,100 +456,75 @@ $flag_status 	= "<span class='nav-link bg-danger text-center text-light' v-if='!
 				</div><br>
 			</span>
 
+			<span v-if="ar.show_impaired_prev">
+				<div class='row'>
+					<div class='col-12'>
+						<div>Impairment</div>
+					</div>
+				</div>
+				<div class='row'>
+					<div class='col-2'>
+						<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_13!=1, 'btn-dark': ar.res_isq_13==1}"  v-on:click="save_is_result('res_isq_13',1)">Yes</button>
+						<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_13!=0, 'btn-dark': ar.res_isq_13==0}"  v-on:click="save_is_result('res_isq_13',0)">No</button>
+					</div>
+					<div class='col-8'>
+						<label><b>Does this asset still exist?</b></label>
+					</div>
+					<div class='col-2 text-right'>
+						<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_13!=1, 'btn-dark': ar.res_isq_13==1}"  v-on:click="save_is_result('res_isq_13',1)">Yes</button>
+						<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_13!=0, 'btn-dark': ar.res_isq_13==0}"  v-on:click="save_is_result('res_isq_13',0)">No</button>	
+					</div>
+				</div><br>
+
+				<div class='row'>
+					<div class='col-2'>
+						<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_14!=1, 'btn-dark': ar.res_isq_14==1}"  v-on:click="save_is_result('res_isq_14',1)">Yes</button>
+						<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_14!=0, 'btn-dark': ar.res_isq_14==0}"  v-on:click="save_is_result('res_isq_14',0)">No</button>
+					</div>
+					<div class='col-8'>
+						<label><b>Is this asset still impaired?</b></label>
+					</div>
+					<div class='col-2 text-right'>
+						<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_14!=1, 'btn-dark': ar.res_isq_14==1}"  v-on:click="save_is_result('res_isq_14',1)">Yes</button>
+						<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_14!=0, 'btn-dark': ar.res_isq_14==0}"  v-on:click="save_is_result('res_isq_14',0)">No</button>	
+					</div>
+				</div><br>
+
+				<div class='row'>
+					<div class='col-2'>
+						<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data" readonly>
+						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
+					</div>
+					<div class='col-8'>
+						<label><b>When will this asset be repaired/remediated?</b></label>
+					</div>
+					<div class='col-2 text-right'>
+						<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data" readonly>
+						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
+					</div>
+				</div>
+			</span>
 
 
 
 
 <!-- 
-Add first found - top menu - 
+	Add delete first found
 Need to add validation
-need to make the completion of IS buttons signal the completion of the asset
 Need to add camera
 Disable update function if stocktake in progress
-
+Add date picker
  -->
-
-
-
-
-
-
-
-
-
-
-
-		<span v-if="ar.impairment_code=='impaired_prev'&&ar.res_reason_code">
-			<div class='row'>
-				<div class='col-2'>
-					<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_13!=1, 'btn-dark': ar.res_isq_13==1}"  v-on:click="save_is_result('res_isq_13',1)">Yes</button>
-					<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_13!=0, 'btn-dark': ar.res_isq_13==0}"  v-on:click="save_is_result('res_isq_13',0)">No</button>
-				</div>
-				<div class='col-8'>
-					<label><b>Does this asset still exist?</b></label>
-				</div>
-				<div class='col-2 text-right'>
-					<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_13!=1, 'btn-dark': ar.res_isq_13==1}"  v-on:click="save_is_result('res_isq_13',1)">Yes</button>
-					<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_13!=0, 'btn-dark': ar.res_isq_13==0}"  v-on:click="save_is_result('res_isq_13',0)">No</button>	
-				</div>
-			</div><br>
-
-			<div class='row'>
-				<div class='col-2'>
-					<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_14!=1, 'btn-dark': ar.res_isq_14==1}"  v-on:click="save_is_result('res_isq_14',1)">Yes</button>
-					<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_14!=0, 'btn-dark': ar.res_isq_14==0}"  v-on:click="save_is_result('res_isq_14',0)">No</button>
-				</div>
-				<div class='col-8'>
-					<label><b>Is this asset still impaired?</b></label>
-				</div>
-				<div class='col-2 text-right'>
-					<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_14!=1, 'btn-dark': ar.res_isq_14==1}"  v-on:click="save_is_result('res_isq_14',1)">Yes</button>
-					<button class="btn" v-bind:class="{'btn-outline-dark': ar.res_isq_14!=0, 'btn-dark': ar.res_isq_14==0}"  v-on:click="save_is_result('res_isq_14',0)">No</button>	
-				</div>
-			</div><br>
-
-			<div class='row'>
-				<div class='col-2'>
-					<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data" readonly>
-					<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
-				</div>
-				<div class='col-8'>
-					<label><b>When will this asset be repaired/remediated?</b></label>
-				</div>
-				<div class='col-2 text-right'>
-					<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data" readonly>
-					<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
-				</div>
-			</div>
-		</span>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 		</div>
 		<div class='col-12 col-md-1 col-xl-1 bd-sidebar text-right'  >
 			<nav class='nav flex-column'>
-				<span  v-if='!ar.res_reason_code'><?=$btnset?></span>
+				<span  v-if='ar.show_btnset'><?=$btnset?></span>
 				<?=$btn_clear?>
 				<?=$btn_cancel?>
+				<?=$btn_deleteff?>
 			</nav>
 		</div>
 	    
@@ -512,44 +536,6 @@ Disable update function if stocktake in progress
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </div>
 
 <br><br><br>
@@ -557,8 +543,12 @@ Disable update function if stocktake in progress
 new Vue({
 	el: '#asset_page',
 	data: <?=$json_asset?>,
+	components: {
+		vuejsDatepicker
+	},
 	methods: {
 		sync_data: function (event) {
+
 			let data = new FormData();
 			data.append("act", 				"save_asset_field");
 			data.append("ass_id", 			this.ar.ass_id);
@@ -580,13 +570,31 @@ new Vue({
 				}
 			})
 		},
+		isValidDate(d) {
+			return d instanceof Date && !isNaN(d);
+			console.log(d)
+		},
 		save_is_result(isq,isq_res){
-			this.ar[isq] = isq_res;
+			this.ar[isq] 						= isq_res;
+			this.ar.res_completed 				= 0;
+			this.ar.res_impairment_completed 	= 0;
+			console.log(this.ar.impairment_code)
+			if (this.ar.impairment_code=="impaired_curr"&&this.ar.res_isq_5!=null&&this.ar.res_isq_6!=null&&this.ar.res_isq_7!=null&&this.ar.res_isq_8&&this.ar.res_isq_9!=null) {
+				this.ar.res_impairment_completed 	= 1;
+				this.ar.res_completed 				= 1;
+			}else if (this.ar.impairment_code=="impaired_prev"&&this.ar.res_isq_13!=null&&this.ar.res_isq_14!=null&&this.ar.res_isq_15!=null) {
+				this.ar.res_impairment_completed 	= 1;
+				this.ar.res_completed 				= 1;
+			}
+
+
 			let data = new FormData();
-			data.append("act",		"save_asset_isq");
-			data.append("ass_id",	this.ar.ass_id);
-			data.append("isq",		isq);
-			data.append("isq_res",	isq_res);
+			data.append("act",						"save_asset_isq");
+			data.append("ass_id",					this.ar.ass_id);
+			data.append("isq",						isq);
+			data.append("isq_res",					isq_res);
+			data.append("res_impairment_completed",	this.ar.res_impairment_completed);
+			data.append("res_completed", 			this.ar.res_completed);
 
 			fetch("05_action.php", {
 				method: "POST",
@@ -600,6 +608,7 @@ new Vue({
 				if(res=="success"){
 				}
 			})
+			this.stateful(this.ar.res_reason_code);
 		},
 		save_is_slider(){
 			let data = new FormData();
@@ -648,64 +657,87 @@ new Vue({
 				if(res=="success"){
 				}
 			})
-      		this.stateful()
+      		this.stateful(this.ar.res_reason_code)
 		},
 
-
-		select_reason_code(res_reason_code){
-			// this.ar.res_reason_code = res_reason_code;
-			console.log(res_reason_code);
-			if (res_reason_code=='Not Found') {
-				this.ar.show_second_choice=true;
-				this.ar.show_second_choice_nf=true;
-				this.ar.show_second_choice_err=false;
-			}else if(res_reason_code=='Asset Error'){
-				this.ar.show_second_choice=true;
-				this.ar.show_second_choice_nf=false;
-				this.ar.show_second_choice_err=true;
-				console.log(this.ar.show_second_choice);
-			}else if(res_reason_code=='nd10'){
-      			this.save_reason_code('nd10')
-			}
-
-
-		},
-
-		clear_second_choice(){
-			// this.ar.res_reason_code = null;
-			this.ar.show_second_choice=false;
-			this.ar.show_second_choice_nf=false;
-			this.ar.show_second_choice_err=false;
-			
-		},
-
-		stateful: function (event) {
+		stateful(res_reason_code){
+			this.ar.res_reason_code 		= res_reason_code;
 			this.ar.lock_limited 			= true;
 			this.ar.lock_all 				= true;
+			this.ar.show_btnset				= true;
+			this.ar.show_fieldset			= true;
 			this.ar.show_second_choice 		= false;
-			this.ar.vis_reason_code_buttons	= true;
+			this.ar.show_impaired_curr		= false;
+			this.ar.show_impaired_prev		= false;
+			this.ar.show_second_choice_nf	= false;
+			this.ar.show_second_choice_err	= false;
+			this.ar.show_clear_btn			= false;
+			this.ar.show_cancel_btn			= false;
+			this.ar.show_delete_btn			= false;
 
+			this.ar.show_nyc				= false;
+			this.ar.show_complete			= false;
+			this.ar.show_incomplete_impaired= false;
+
+			console.log(this.ar.rcs['ND10']);
+
+			console.log("this.ar.res_reason_code:"+this.ar.res_reason_code);
 			if (this.ar.res_reason_code) {
-				this.ar.vis_reason_code_buttons	= false;
+				this.ar.show_btnset			= false;
 
-			}
-			if (this.ar.res_completed==1) {
+				if (["FF10","FF15","FF20","FF25"].includes(this.ar.res_reason_code)) {
+					this.ar.show_complete		= true;
+					this.ar.lock_limited 		= false;
+					this.ar.lock_all 			= false;
+					this.ar.show_cancel_btn		= false;
+					this.ar.show_delete_btn		= true;
+				}else if (this.ar.res_reason_code=='Not Found') {
+					this.ar.show_nyc				= true;
+					this.ar.show_btnset=false;
+					this.ar.show_fieldset=false;
+					this.ar.show_second_choice_nf=true;
+					this.ar.show_cancel_btn		= true;
+				}else if(this.ar.res_reason_code=='Asset Error'){
+					this.ar.show_nyc				= true;
+					this.ar.show_btnset=false;
+					this.ar.show_fieldset=false;
+					this.ar.show_second_choice_err=true;
+					this.ar.show_cancel_btn		= true;
+				}else{
+					this.ar.show_complete		= true;
+					// $arr_asset['ar.reason_codes'][$list_res_reason_code]['rc_desc'] 		= $list_rc_desc;
+					this.ar.selected_rc_details	= this.ar.rcs[this.ar.res_reason_code]['rc_desc']+" - "+this.ar.rcs[this.ar.res_reason_code]['rc_long_desc'];
+					this.ar.lock_limited 		= true;
+					this.ar.lock_all 			= true;
+					this.ar.show_clear_btn		= true;
+					if (this.ar.res_reason_code=='ND10') {
+						this.ar.lock_limited 	= false;
+					}
 
-			}
-			if (["ND10","ND10","ND10"].includes(this.ar.res_reason_code)) {
-				this.ar.lock_limited 	= false;
-				this.ar.lock_all 		= true;
+					if(this.ar.impairment_code=="impaired_curr"){
+						this.ar.show_impaired_curr	= true;	
+					}else if(this.ar.impairment_code=="impaired_prev"){
+						this.ar.show_impaired_prev	= true;
+					}
+				}
+				if(this.ar.impairment_code=="impaired_curr"&&this.ar.res_impairment_completed!=1||this.ar.impairment_code=="impaired_prev"&&this.ar.res_impairment_completed!=1){
+					this.ar.show_nyc				= false;
+					this.ar.show_complete			= false;
+					this.ar.show_incomplete_impaired= true;
+				}
 
+
+
+			}else{
+				this.ar.show_nyc				= true;
+				this.ar.show_complete			= false;
+				this.ar.show_incomplete_impaired= false;
 			}
 		}
-
-
-
-
-
 	},
+
 	beforeMount: function(){
-	    this.stateful()
+	    this.stateful(this.ar.res_reason_code)
 	}
 })
 </script>
