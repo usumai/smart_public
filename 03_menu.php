@@ -31,7 +31,6 @@ if ($test_internet){
     $sql_save = "UPDATE smartdb.sm10_set SET date_last_update_check=NOW(); ";
     mysqli_multi_query($con,$sql_save);
 
-
 }else{
     $internet_connectivity = false; //action in connection failure
     $latest_version_no      = null;
@@ -63,7 +62,7 @@ if($livecount>0){
     $btn_stk  = "<a href='10_stk.php' class='nav-link text-success'>Stocktake</a>";
     $btn_ff   = "<a href='12_ff.php' class='nav-link text-info'>Add First Found</a>";
     if ($latest_version_no>$smartm_software_version) {
-        $area_version_status = "<span class='dropdown-item'>You cannot update software when you open stocktakes</span>";
+        $area_version_status = "<span class='dropdown-item'>You cannot update software when you have open stocktakes</span>";
     }
 }else{
     $btn_stk  = "<span class='nav-link text-secondary' >Stocktake</span>";
