@@ -1,4 +1,3 @@
-<?php include "08_version.php"; ?>
 <?php
 $smartm_software_version = 0.1;
 $icon_tick = "<i class='far fa-check-circle'></i>";
@@ -14,6 +13,26 @@ if (strpos($actual_link, "110_smarter_master")){
 $test_internet = @fsockopen("www.example.com", 80); //website, port  (try 80 or 443)
 if ($test_internet){
     $internet_connectivity = true; //action when connected
+//     ini_set("allow_url_fopen", 1);
+//     file_get_contents("test.txt");
+//     $jsonData = json_decode(file_get_contents('https://chart.googleapis.com/chart?cht=p3&chs=250x100&chd=t:60,40&chl=Hello|World&chof=json'));
+//     $json = file_get_contents('https://raw.githubusercontent.com/usumai/smart_public/master/08_version.php', true);
+    $site="http://www.google.com";
+    $site="https://raw.githubusercontent.com/usumai/smart_public/master/08_version.json";
+// $content = file_get_content($site);
+// echo $content;
+
+    $ch = curl_init();    
+    curl_setopt($ch,CURLOPT_URL,$site);
+    $data = curl_exec($ch);
+    curl_close($ch);
+
+    echo "<br><br><br>[".$data."]";
+    // echo get_remote_data('http://example.com');
+    // $obj = json_decode($json);
+    // print_r($obj);
+    // $latest_version_no      = $obj->latest_version_no;
+    // $version_publish_date   = $obj->version_publish_date;
     fclose($test_internet);
 }else{
     $internet_connectivity = false; //action in connection failure
