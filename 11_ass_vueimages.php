@@ -72,7 +72,6 @@ $arr_asset['ar.selected_reason_code']		= false;
 $arr_asset['ar.show_nyc']					= false;
 $arr_asset['ar.show_complete']				= false;
 $arr_asset['ar.show_incomplete_impaired']	= false;
-$arr_asset['ar.show_camera_btn']			= false;
 $arr_asset['ar.loaded_image']				= 'includes/favicon.ico';
 
 
@@ -99,8 +98,6 @@ $arr_asset['completeness'] 	= false;
 if($arr_asset['res_completed']==1){
 	$arr_asset['completeness'] 	= true;
 }
-$ar['ar'] = $arr_asset;
-$json_asset = json_encode($ar);
 // echo $json_asset;
 
 $sql = "SELECT * FROM smartdb.sm13_stk WHERE stkm_id=".$arr_asset['stkm_id'];
@@ -147,29 +144,23 @@ $Subnumber 	= $arrsql[0]['Subnumber'];
 $a 			= scandir("images/");
 $img_list 	= "";
 $images 	= "";
+$arr_img = [];
 foreach ($a as $key => $value) {
     if (substr($value, 0,8)=="$Asset-$Subnumber")  {
+
+		$arr_img[] = $value;
 		$clean_val = str_replace("-", "", $value);
 		$clean_val = str_replace(".jpg", "", $clean_val);
 		$clean_val = str_replace("_", "", $clean_val);
-		$img_list .= "<button type='button' class='btn thumb_photo' value='".$clean_val."' data-toggle='modal' data-target='#modal_show_pic'  v-on:click='update_image(`".$value."`)' id='thumb_".$clean_val."'><img src='images/".$value."?".time()."' width='200px'></button>"; 
-
-		$btn_delete = "	<div class='dropdown'>
-						    <button class='nav-link btn btn-outline-dark dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Delete</button>
-						    <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-						        <a class='dropdown-item bg-danger text-light' href='05_action.php?act=save_delete_photo&ass_id=$ass_id&photo_filename=".$value."' id='btn_delete_photo'>I'm sure</a>
-						    </div>
-						</div>";
-
-		$images .= "<span class='btn_photo' id='".$clean_val."' ><img src='images/".$value."' width='100%'>".$btn_delete."</span>"; 
+		$img_list .= "<button type='button' class='btn thumb_photo' value='".$clean_val."' data-toggle='modal' data-target='#modal_show_pic'><img src='images/".$value."' width='200px'></button>"; 
+		$images .= "<img class='btn_photo' id='".$clean_val."' src='images/".$value."' width='100%'>"; 
     }
 }
+$arr_asset['img'] = $arr_img;
 $img_list = "<div class='row'><div class='col-12'><div class='form-group'><h2>Images</h2>$img_list</div></div></div>";
 
-
-$btn_camera = "<br><br><a href='13_camera.php?ass_id=".$ass_id."' class='btn btn-secondary text-center' ><span class='octicon octicon-device-camera' style='font-size:30px' v-if='ar.show_camera_btn'></span></a>";
-
-
+$ar['ar'] = $arr_asset;
+$json_asset = json_encode($ar);
 ?>
 
 
@@ -194,7 +185,6 @@ $( function() {
 		$('.btn_photo').hide();
 		$('#'+filename).show();
 	});
-
 });
 </script>
 
@@ -206,7 +196,6 @@ $( function() {
 <script src="includes/vue.js"></script>
 <script src="includes/vuejs-datepicker.min.js"></script>
 <br><br>
-
 <div class='container-fluid' id="asset_page">
 	<div class='row'>
 		<div class='col-12 col-md-1 col-xl-1 bd-sidebar'><nav class='nav flex-column'><?=$flag_status?></nav></div>
@@ -221,13 +210,12 @@ $( function() {
 		<div class='col-12 col-md-1 col-xl-1 bd-sidebar'  >
 			<nav class='nav flex-column'>
 				<span  v-if='ar.show_btnset'><?=$btnset?></span>
+			</nav>
 			<?=$btn_clear?>
 			<?=$btn_cancel?>
 			<?=$btn_deleteff?>
-			<?=$btn_camera?>
-			</nav>
 
-			
+			<a href="13_camera.php?ass_id=<?=$ass_id?>" class="btn btn-secondary text-center" ><span class='octicon octicon-device-camera' style='font-size:30px'></span></a>
 		</div>
 		<!-- <div class='col-1'><?=$btnset?></div> -->
 		<div class='col-10' >
@@ -393,8 +381,11 @@ $( function() {
 					</div>
 				</div>
 
-				<?=$img_list?>
-				
+				<span v-for="photo_file in ar.img">
+					<button type='button' class='btn' data-toggle='modal' data-target='#modal_show_pic' v-on:click="update_picture(photo_file)" v-if="'ar.img.'+photo_file"><img :src="'images/'+photo_file" width="200px"></button>
+				</span>
+
+
 
 				<div class='row'>
 					<div class='col-12'>
@@ -564,10 +555,20 @@ $( function() {
         </button>
       </div>
       <div class="modal-body">  
-		<?=$images?> 
+
+
+		<span v-model="ar.loaded_image"></span>
+
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Back</button>
+		<div class='dropdown'>
+		    <button class='nav-link btn btn-outline-dark dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Delete</button>
+		    <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
+		        <button class='dropdown-item bg-danger text-light' v-on:click="delete_photo">I'm sure</button>
+		    </div>
+		</div>
       </div>
     </div>
   </div>
@@ -591,7 +592,6 @@ Add user login
 				<?=$btn_clear?>
 				<?=$btn_cancel?>
 				<?=$btn_deleteff?>
-				<?=$btn_camera?>
 			</nav>
 		</div>
 	    
@@ -737,13 +737,37 @@ new Vue({
 			})
       		this.stateful(this.ar.res_reason_code)
 		},
-		update_image(photo_filename){
+		update_picture(photo_filename){
 			this.ar.loaded_image 			= photo_filename;
+			// this.ar.loaded_image 			= "<img src='images/"+photo_filename+"'>";
 			console.log("this.ar.loaded_image: "+this.ar.loaded_image);
 		},
 		delete_photo(){
 			console.log("this.ar.loaded_image: "+this.ar.loaded_image);
 
+			this.ar.img.pop;
+
+			// let data = new FormData();
+			// data.append("act", 				"save_asset_edit");
+			// data.append("ass_id", 			this.ar.ass_id);
+			// data.append("res_reason_code", 	this.ar.res_reason_code);
+			// data.append("res_completed", 	this.ar.res_completed);
+			// fetch("05_action.php", {
+			// 	method: "POST",
+   //  			body: data
+			// })
+			// .then(function(res){ 
+			// 	return res.text();
+			// })
+			// .then(function(res){ 
+			// 	console.log(res);
+			// 	if(res=="success"){
+			// 	}
+			// })
+		},
+		test_method(){
+			// alert("hello")
+			console.log(this.ar.img)
 		},
 		stateful(res_reason_code){
 			this.ar.res_reason_code 		= res_reason_code;
@@ -759,7 +783,6 @@ new Vue({
 			this.ar.show_clear_btn			= false;
 			this.ar.show_cancel_btn			= false;
 			this.ar.show_delete_btn			= false;
-			this.ar.show_camera_btn			= false;
 
 			this.ar.show_nyc				= false;
 			this.ar.show_complete			= false;
@@ -777,7 +800,6 @@ new Vue({
 					this.ar.lock_all 			= false;
 					this.ar.show_cancel_btn		= false;
 					this.ar.show_delete_btn		= true;
-					this.ar.show_camera_btn		= true;
 				}else if (this.ar.res_reason_code=='Not Found') {
 					this.ar.show_nyc				= true;
 					this.ar.show_btnset=false;
@@ -797,7 +819,6 @@ new Vue({
 					this.ar.lock_limited 		= true;
 					this.ar.lock_all 			= true;
 					this.ar.show_clear_btn		= true;
-					this.ar.show_camera_btn		= true;
 					if (this.ar.res_reason_code=='ND10') {
 						this.ar.lock_limited 	= false;
 					}

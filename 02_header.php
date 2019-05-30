@@ -1,18 +1,17 @@
 <?php
 
-// $sql = "SELECT * FROM ".$dbname.".smart_l01_settings";
-// $result = $con->query($sql);
-// if ($result->num_rows > 0) {
-//     while($row = $result->fetch_assoc()) {
-//         $theme_type    = $row["theme_type"];
-// }}
-$theme_type=0;
+$sql = "SELECT * FROM smartdb.sm10_set";
+$result = $con->query($sql);
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $theme_type    = $row["theme_type"];
+}}
 $scheme_color="";
 if ($theme_type==1) {
     $scheme_color = "
     body{
         background-color: #282923;
-        color: white;
+        color: white!important;
     }
 
     .card{
@@ -34,6 +33,17 @@ if ($theme_type==1) {
     b{
         color: coral!important;
     }
+    table{
+        color: white!important;
+    }
+    .btn-outline-dark{
+        color: white!important;
+        border-color: white!important;
+    }
+    input:disabled {
+        background-color: #282923!important;
+        border-color: #000!important;
+    }
     ";
 }
 // $scheme_color = "";
@@ -47,6 +57,7 @@ $icon_spot_grey     = "<span class='octicon octicon-primitive-dot text-secondary
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta name="description" content="">
 		<title>SMART Mobile</title>
+        <link rel="icon" href="includes/favicon.ico">
 		<link rel="stylesheet" href="includes/bootstrap-4.3.1-dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="includes/octicons/octicons.min.css">
         <link rel="stylesheet" href="includes/fontawesome-free-5.8.2-web/css/all.css" rel="stylesheet"> <!--load all styles -->

@@ -275,6 +275,28 @@ mysqli_multi_query($con,$sql_save);
 
      header("Location: index.php");
 
+
+}else if ($act=="save_invertcolors") {
+     $sql = "SELECT * FROM smartdb.sm10_set";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+         while($row = $result->fetch_assoc()) {
+             $theme_type    = $row["theme_type"];
+     }}
+
+     if ($theme_type==1) {
+          $sql_save = "UPDATE smartdb.sm10_set SET theme_type = '0' ";
+     }else{
+          $sql_save = "UPDATE smartdb.sm10_set SET theme_type = '1' ";
+     }
+
+     sleep(1);
+     // echo $_SERVER['HTTP_REFERER'];
+     mysqli_multi_query($con,$sql_save);
+     header("Location: ".$_SERVER['HTTP_REFERER']);
+
+
+
 }elseif ($act=='save_stk_toggle') {
      $stkm_id = $_GET["stkm_id"];
      $sql = "SELECT * FROM smartdb.sm13_stk WHERE stkm_id = ".$stkm_id.";";
@@ -490,7 +512,8 @@ mysqli_multi_query($con,$sql_save);
      $ass_id             = $_POST["ass_id"];
      $res_reason_code    = $_POST["res_reason_code"];
      $res_completed      = $_POST["res_completed"];
-     $sql_save = "UPDATE smartdb.sm14_ass SET res_reason_code='$res_reason_code',res_completed=$res_completed WHERE ass_id = $ass_id;";
+     $fingerprint        = time();
+     $sql_save = "UPDATE smartdb.sm14_ass SET res_reason_code='$res_reason_code',res_completed=$res_completed, fingerprint='$fingerprint' WHERE ass_id = $ass_id;";
      echo $sql_save;
      if (!mysqli_multi_query($con,$sql_save)){
           $save_error = mysqli_error($con);
@@ -602,7 +625,7 @@ mysqli_multi_query($con,$sql_save);
 
 }elseif ($act=='save_clear_results'){
      $ass_id        = $_GET["ass_id"];
-     $sql_save = "  UPDATE smartdb.sm14_ass SET res_create_date = null, res_create_user = null, res_reason_code = null, res_reason_code_desc = null, res_impairment_completed = null, res_completed = null, res_AssetDesc1 = null, res_AssetDesc2 = null, res_AssetMainNoText = null, res_Class = null, res_classDesc = null, res_assetType = null, res_Inventory = null, res_Quantity = null, res_SNo = null, res_InventNo = null, res_accNo = null, res_Location = null, res_Room = null, res_State = null, res_latitude = null, res_longitude = null, res_CurrentNBV = null, res_AcqValue = null, res_OrigValue = null, res_ScrapVal = null, res_ValMethod = null, res_RevOdep = null, res_CapDate = null, res_LastInv = null, res_DeactDate = null, res_PlRetDate = null, res_CCC_ParentName = null, res_CCC_GrandparentName = null, res_GrpCustod = null, res_CostCtr = null, res_WBSElem = null, res_Fund = null, res_RspCCtr = null, res_CoCd = null, res_PlateNo = null, res_Vendor = null, res_Mfr = null, res_UseNo = null, res_isq_5 = null, res_isq_6 = null, res_isq_7 = null, res_isq_8 = null, res_isq_9 = null, res_isq_10 = null, res_isq_13 = null, res_isq_14 = null, res_isq_15 = null WHERE ass_id=$ass_id";
+     $sql_save = "  UPDATE smartdb.sm14_ass SET fingerprint=null, res_create_date = null, res_create_user = null, res_reason_code = null, res_reason_code_desc = null, res_impairment_completed = null, res_completed = null, res_AssetDesc1 = null, res_AssetDesc2 = null, res_AssetMainNoText = null, res_Class = null, res_classDesc = null, res_assetType = null, res_Inventory = null, res_Quantity = null, res_SNo = null, res_InventNo = null, res_accNo = null, res_Location = null, res_Room = null, res_State = null, res_latitude = null, res_longitude = null, res_CurrentNBV = null, res_AcqValue = null, res_OrigValue = null, res_ScrapVal = null, res_ValMethod = null, res_RevOdep = null, res_CapDate = null, res_LastInv = null, res_DeactDate = null, res_PlRetDate = null, res_CCC_ParentName = null, res_CCC_GrandparentName = null, res_GrpCustod = null, res_CostCtr = null, res_WBSElem = null, res_Fund = null, res_RspCCtr = null, res_CoCd = null, res_PlateNo = null, res_Vendor = null, res_Mfr = null, res_UseNo = null, res_isq_5 = null, res_isq_6 = null, res_isq_7 = null, res_isq_8 = null, res_isq_9 = null, res_isq_10 = null, res_isq_13 = null, res_isq_14 = null, res_isq_15 = null WHERE ass_id=$ass_id";
      mysqli_multi_query($con,$sql_save);
      echo "\n".$sql_save;
 
@@ -682,7 +705,51 @@ mysqli_multi_query($con,$sql_save);
      }
      header("Location: 10_stk.php");
 
+}elseif ($act=='save_photo'){
 
+     $ass_id        = $_POST["ass_id"];
+     $input  = $_POST["res_img_data"];
+     // echo "<img src='".$res_img_data."' width=100%/>";
+
+     $sql = "SELECT * FROM smartdb.sm14_ass WHERE ass_id = ".$ass_id."; ";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+          while($row = $result->fetch_assoc()) {
+               $Asset         = $row["Asset"];
+               $Subnumber     = $row["Subnumber"];
+     }}
+
+     $counter = 1;
+     $photo_name              = "images/".$Asset.'-'.$Subnumber;
+     $original_photo_name     = $photo_name;
+     $photo_name              = $photo_name.'_'.$counter.'.jpg';
+     while (file_exists($photo_name)) {
+          $counter++;
+          $photo_name = $original_photo_name.'_'.$counter.'.jpg';
+     }
+
+
+     // $create_user             = "Placeholder";
+     // $sql_save = "INSERT INTO ".$dbname.".smart_l07_photo (create_date, create_user, ass_id, Asset, res_img_data) VALUES (NOW(),'".$create_user."','".$ass_id."','".$Asset."','".$res_img_data."'); ";
+     // // echo $sql_save; 
+     // mysqli_multi_query($con,$sql_save);
+
+     // $input = 'http://images.websnapr.com/?size=size&key=Y64Q44QLt12u&url=http://google.com';
+     // $output = 'google.com.jpg';
+     // $output = '$Asset$Subnumber_';
+     file_put_contents($photo_name, file_get_contents($input));
+
+     header("Location: 11_ass.php?ass_id=".$ass_id);
+
+}elseif ($act=='save_delete_photo'){
+     $photo_filename     = "images/".$_GET["photo_filename"];
+     $ass_id             = $_GET["ass_id"];
+     echo $photo_filename;
+     $myFileLink = fopen($photo_filename, 'w') or die("can't open file");
+     fclose($myFileLink);
+     unlink($photo_filename) or die("Couldn't delete file");
+
+     header("Location: 11_ass.php?ass_id=".$ass_id);
 
 }
 // echo $log;

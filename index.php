@@ -83,10 +83,26 @@ if ($result->num_rows > 0) {
     }
 </style>
 
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#loading_spinner').hide();
+    $('#fileToUpload').change(function(){
+        let filename = $(this).val();
+        if (filename) {
+            $('#btn_submit_upload').show();    
+        }else{
+            $('#btn_submit_upload').hide();    
+        }
+    });
+    $('#btn_submit_upload').click(function(){
+        $('#loading_spinner').show();    
+        $('#form_upload').hide();
+    });
+});
+</script>
 <main role="main" class="flex-shrink-0">
 	<div class="container">
 		<h1 class="mt-5">SMART Mobile</h1>
-		<p class="lead">New auto updating software. Production edition</p>
 	</div>
 </main>
 
@@ -108,46 +124,19 @@ if ($result->num_rows > 0) {
         </tbody>
     </table>
     
-    <form action="05_action.php" method="post" enctype="multipart/form-data">
+    <form action="05_action.php" method="post" enctype="multipart/form-data" id="form_upload">
         <h5 class="card-title">Upload file</h5>
         <h6 class="card-subtitle mb-2 text-muted">Stocktake and Raw Remainder</h6>
         <p class="card-text">
             <input type="file" name="fileToUpload" id="fileToUpload" class="form-control-file">
         </p>
         <input type="hidden" name="act" value="upload_file">
-        <input type="submit" value="Upload File" name="submit" class="btn btn-link">
+        <input type="submit" value="Upload File" name="submit" class="btn btn-link" id="btn_submit_upload" style="display:none">
     </form>
 
-<!-- <div id="myProgress">
-    <div id="myBar"></div>
+    <div class="spinner-border" role="status" id='loading_spinner' style="width: 3rem; height: 3rem;" style="display:none!important">
+        <span class="sr-only" style="">Loading...</span>Uploading&nbsp;file
+    </div>
+
 </div>
-<input type="file" onchange="readFile(this)">
-
-<script src="07_upload.js"></script>
-
-</div> -->
-
-<!-- 
-
-always working on the working_development branch
-pushing saves to the cloud working_development
-
-when ready to publish
-we make a final push to the working_dev branch keeping them both in sync
-
-we change to the master branch
-we merge the working branch into the master branch
-
-we push the new master branch to remote
-
-
-
-
- -->
-<?
-
-
-
-
-?>
 <?php include "04_footer.php"; ?>
