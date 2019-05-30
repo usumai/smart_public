@@ -574,7 +574,6 @@ $( function() {
 </div>
 
 <!-- 
-Need to add camera
 Add raw remainder
 Add fix me portal
 Add merge
