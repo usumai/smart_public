@@ -83,6 +83,34 @@ $menu_software = $area_last_update . $area_version_status.$btn_push_master ;
 
 ?>
 
+<script>
+$( function() {
+    $( "#tags" ).autocomplete({
+        source: function( request, response ) {
+            $.ajax( {
+                url: "05_action.php",
+                data: {
+                    act: "get_asset_list",
+                    search_term: request.term
+                },
+                success: function( data ) {
+                    json = JSON.parse(data)
+
+                    response(json);
+                    console.log(json)
+                }
+            });
+        },
+        select: function( event, ui ) {
+            // console.log("Selected: " + ui.item.value + " aka " + ui.item.id )
+            window.location.href = "11_ass.php?ass_id="+ui.item.value;
+        }
+    });
+
+});
+</script>
+
+
 <body class="d-flex flex-column h-100">
 <header>
   <!-- Fixed navbar -->
@@ -107,8 +135,18 @@ $menu_software = $area_last_update . $area_version_status.$btn_push_master ;
                         <a class="dropdown-item" href="05_action.php?act=save_invertcolors">Invert Colour Scheme</a>
                     </div>
                 </li>
+                <li class="nav-item">
+                    <div class="ui-widget">
+                        <input id="tags" class='form-control'>
+                    </div>
+                </li>
             </ul>
             <?=$btn_stk?>
+
+
+
+
+
         </div>
 
 
@@ -177,7 +215,7 @@ $menu_software = $area_last_update . $area_version_status.$btn_push_master ;
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <a type="button" class="btn btn-danger" href='05_action.php?act=sys_initialise'>Reset</a>
+        <a type="button" class="btn btn-danger" href='05_action.php?act=sys_reset_data'>Reset</a>
       </div>
     </div>
   </div>

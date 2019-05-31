@@ -17,7 +17,7 @@ if ($act=='sys_pull_master') {
 	$output .= shell_exec($addr_git.' pull https://github.com/usumai/smart_public.git');
 	echo "<pre>$output</pre>";
 
-	header("Location: 05_action.php?act=sys_initialise");
+	header("Location: index.php");
 
 }elseif ($act=='sys_push_master') {//Typically don't use this. Developer only. User access will allow everything to be fucked up.
 	// if(function_exists('shell_exec')) {
@@ -41,237 +41,225 @@ if ($act=='sys_pull_master') {
      header("Location: index.php");
 
 }elseif ($act=='sys_initialise') {
-    $dbname = "smartdb";
+     $dbname = "smartdb";
 
-// Delete after testing
-$sql_save = "DROP DATABASE $dbname;";
-mysqli_multi_query($con,$sql_save); 
+   $log .= "<br>"."creating database: $dbname";
+   $sql_save = "CREATE DATABASE $dbname;";
+   mysqli_multi_query($con,$sql_save); 
 
-
-
-	$sql = "SELECT count(*) as dbexists FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$dbname'";
-	$result = $con->query($sql);
-	if ($result->num_rows > 0) {
-		while($row = $result->fetch_assoc()) {
-			$dbexists    = $row["dbexists"];
-	}}
-    $log .= "<br>"."search for database $dbname yeailded $dbexists results";
-    if ($dbexists==0) {
-        $log .= "<br>"."creating database: $dbname";
-        $sql_save = "CREATE DATABASE $dbname;";
-        mysqli_multi_query($con,$sql_save);    
-
-          $sql_save = "CREATE TABLE $dbname.sm10_set (`smartm_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL DEFAULT NULL,`delete_date` DATETIME NULL DEFAULT NULL,`update_date` DATETIME NULL DEFAULT NULL,`active_profile_id` INT NULL DEFAULT NULL,`last_access_date` DATETIME NULL,`last_access_profile_id` INT(11) NULL,`smartm_software_version` INT(11) NULL,`smartm_db_version` INT(11) NULL,`rr_extract_date` DATETIME NULL, `rr_extract_user` VARCHAR(255) NULL DEFAULT NULL,`journal_id` INT(11) NULL,`help_shown` INT(11) NULL,`theme_type` INT(11) NULL,`date_last_update_check` DATETIME NULL, PRIMARY KEY (`smartm_id`),UNIQUE INDEX `smartm_id_UNIQUE` (`smartm_id` ASC));";
-          mysqli_multi_query($con,$sql_save);
-
-         $sql_save = "INSERT INTO $dbname.sm10_set (create_date, update_date, last_access_date, journal_id, help_shown, theme_type, smartm_software_version) VALUES (NOW(), NOW(), NOW(),1,0,0,1); ";
-          mysqli_multi_query($con,$sql_save);
-
-          $sql_save = "CREATE TABLE $dbname.sm11_pro (`profile_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL DEFAULT NULL,`delete_date` DATETIME NULL DEFAULT NULL,`update_date` DATETIME NULL DEFAULT NULL,`profile_name` VARCHAR(255) NULL DEFAULT NULL,`profile_drn` VARCHAR(255) NULL DEFAULT NULL,`profile_phone_number` VARCHAR(255) NULL DEFAULT NULL,`profile_pic` LONGTEXT NULL DEFAULT NULL,`profile_color_a` VARCHAR(255) NULL DEFAULT NULL,`profile_color_b` VARCHAR(255) NULL DEFAULT NULL,PRIMARY KEY (`profile_id`),UNIQUE INDEX `profile_id_UNIQUE` (`profile_id` ASC));";
-          mysqli_multi_query($con,$sql_save);
-
-          $sql_save = "CREATE TABLE $dbname.sm12_rwr (`rr_id` INT(11) NOT NULL AUTO_INCREMENT,`Asset` VARCHAR(15) NULL DEFAULT NULL,`accNo` VARCHAR(5) NULL DEFAULT NULL, `InventNo` VARCHAR(30) NULL DEFAULT NULL, `AssetDesc1` VARCHAR(255) NULL DEFAULT NULL, `Class` VARCHAR(255) NULL DEFAULT NULL, `ParentName` VARCHAR(255) NULL DEFAULT NULL, PRIMARY KEY (`rr_id`),UNIQUE INDEX `rr_id_UNIQUE` (`rr_id` ASC));";
-          mysqli_multi_query($con,$sql_save);
-
-          $sql_save = "CREATE TABLE $dbname.sm13_stk (`stkm_id` INT NOT NULL AUTO_INCREMENT,`stk_id` INT NULL,`stk_name` VARCHAR(255) NULL,`dpn_extract_date` DATETIME NULL,`dpn_extract_user` VARCHAR(255) NULL,`smm_extract_date` DATETIME NULL,`smm_extract_user` VARCHAR(255) NULL,`smm_delete_date` DATETIME NULL,`smm_delete_user` VARCHAR(255) NULL,`stk_include` INT NULL,`rowcount_original` INT NULL,`journal_text` LONGTEXT NULL,PRIMARY KEY (`stkm_id`),UNIQUE INDEX `stkm_id_UNIQUE` (`stkm_id` ASC));";
-          mysqli_multi_query($con,$sql_save);
-
-          $log .= "<br>"."creating $dbname.sm14_ass ";
-          $sql_save = "
-                    CREATE TABLE `$dbname`.`sm14_ass` (
-                    `ass_id` int(11) NOT NULL AUTO_INCREMENT,
-                    `create_date` datetime DEFAULT NULL,
-                    `create_user` varchar(255) DEFAULT NULL,
-                    `delete_date` datetime DEFAULT NULL,
-                    `delete_user` varchar(255) DEFAULT NULL,
-                    `stkm_id` int(11) DEFAULT NULL,
-                    `storage_id` int(11) DEFAULT NULL,
-                    `stk_include` int(11) DEFAULT NULL,
-
-                    `Asset` varchar(255) DEFAULT NULL,
-                    `Subnumber` varchar(255) DEFAULT NULL,
-                    `impairment_code` varchar(255) DEFAULT NULL,
-
-                    `genesis_cat` varchar(255) DEFAULT NULL,
-                    `first_found_flag` int(11) DEFAULT NULL,
-                    `rr_id` int(11) DEFAULT NULL,
-                    `fingerprint` varchar(255) DEFAULT NULL,
-
-
-                    `res_create_date` datetime DEFAULT NULL,
-                    `res_create_user` varchar(255) DEFAULT NULL,
-                    `res_reason_code` varchar(255) DEFAULT NULL,
-                    `res_reason_code_desc` varchar(255) DEFAULT NULL,
-                    `res_impairment_completed` int(1) DEFAULT NULL,
-                    `res_completed` int(1) DEFAULT NULL,
-                    `res_comment` varchar(255) DEFAULT NULL,
-
-                    `AssetDesc1` varchar(255) DEFAULT NULL,
-                    `AssetDesc2` varchar(255) DEFAULT NULL,
-                    `AssetMainNoText` varchar(255) DEFAULT NULL,
-                    `Class` varchar(255) DEFAULT NULL,
-                    `classDesc` varchar(255) DEFAULT NULL,
-                    `assetType` varchar(255) DEFAULT NULL,
-                    `Inventory` varchar(255) DEFAULT NULL,
-                    `Quantity` int(11) DEFAULT NULL,
-                    `SNo` varchar(255) DEFAULT NULL,
-                    `InventNo` varchar(255) DEFAULT NULL,
-                    `accNo` varchar(255) DEFAULT NULL,
-                    `Location` varchar(255) DEFAULT NULL,
-                    `Room` varchar(255) DEFAULT NULL,
-                    `State` varchar(255) DEFAULT NULL,
-                    `latitude` varchar(255) DEFAULT NULL,
-                    `longitude` varchar(255) DEFAULT NULL,
-                    `CurrentNBV` decimal(15,2) DEFAULT NULL,
-                    `AcqValue` decimal(15,2) DEFAULT NULL,
-                    `OrigValue` decimal(15,2) DEFAULT NULL,
-                    `ScrapVal` decimal(15,2) DEFAULT NULL,
-                    `ValMethod` varchar(255) DEFAULT NULL,
-                    `RevOdep` varchar(255) DEFAULT NULL,
-                    `CapDate` datetime DEFAULT NULL,
-                    `LastInv` datetime DEFAULT NULL,
-                    `DeactDate` datetime DEFAULT NULL,
-                    `PlRetDate` datetime DEFAULT NULL,
-                    `CCC_ParentName` varchar(255) DEFAULT NULL,
-                    `CCC_GrandparentName` varchar(255) DEFAULT NULL,
-                    `GrpCustod` varchar(255) DEFAULT NULL,
-                    `CostCtr` varchar(255) DEFAULT NULL,
-                    `WBSElem` varchar(255) DEFAULT NULL,
-                    `Fund` varchar(255) DEFAULT NULL,
-                    `RspCCtr` varchar(255) DEFAULT NULL,
-                    `CoCd` varchar(255) DEFAULT NULL,
-                    `PlateNo` varchar(255) DEFAULT NULL,
-                    `Vendor` varchar(255) DEFAULT NULL,
-                    `Mfr` varchar(255) DEFAULT NULL,
-                    `UseNo` varchar(255) DEFAULT NULL,
-
-
-                    `res_AssetDesc1` varchar(255) DEFAULT NULL,
-                    `res_AssetDesc2` varchar(255) DEFAULT NULL,
-                    `res_AssetMainNoText` varchar(255) DEFAULT NULL,
-                    `res_Class` varchar(255) DEFAULT NULL,
-                    `res_classDesc` varchar(255) DEFAULT NULL,
-                    `res_assetType` varchar(255) DEFAULT NULL,
-                    `res_Inventory` varchar(255) DEFAULT NULL,
-                    `res_Quantity` int(11) DEFAULT NULL,
-                    `res_SNo` varchar(255) DEFAULT NULL,
-                    `res_InventNo` varchar(255) DEFAULT NULL,
-                    `res_accNo` varchar(255) DEFAULT NULL,
-                    `res_Location` varchar(255) DEFAULT NULL,
-                    `res_Room` varchar(255) DEFAULT NULL,
-                    `res_State` varchar(255) DEFAULT NULL,
-                    `res_latitude` varchar(255) DEFAULT NULL,
-                    `res_longitude` varchar(255) DEFAULT NULL,
-                    `res_CurrentNBV` decimal(15,2) DEFAULT NULL,
-                    `res_AcqValue` decimal(15,2) DEFAULT NULL,
-                    `res_OrigValue` decimal(15,2) DEFAULT NULL,
-                    `res_ScrapVal` decimal(15,2) DEFAULT NULL,
-                    `res_ValMethod` varchar(255) DEFAULT NULL,
-                    `res_RevOdep` varchar(255) DEFAULT NULL,
-                    `res_CapDate` datetime DEFAULT NULL,
-                    `res_LastInv` datetime DEFAULT NULL,
-                    `res_DeactDate` datetime DEFAULT NULL,
-                    `res_PlRetDate` datetime DEFAULT NULL,
-                    `res_CCC_ParentName` varchar(255) DEFAULT NULL,
-                    `res_CCC_GrandparentName` varchar(255) DEFAULT NULL,
-                    `res_GrpCustod` varchar(255) DEFAULT NULL,
-                    `res_CostCtr` varchar(255) DEFAULT NULL,
-                    `res_WBSElem` varchar(255) DEFAULT NULL,
-                    `res_Fund` varchar(255) DEFAULT NULL,
-                    `res_RspCCtr` varchar(255) DEFAULT NULL,
-                    `res_CoCd` varchar(255) DEFAULT NULL,
-                    `res_PlateNo` varchar(255) DEFAULT NULL,
-                    `res_Vendor` varchar(255) DEFAULT NULL,
-                    `res_Mfr` varchar(255) DEFAULT NULL,
-                    `res_UseNo` varchar(255) DEFAULT NULL,
-
-                    `res_isq_5` varchar(255) DEFAULT NULL,
-                    `res_isq_6` varchar(255) DEFAULT NULL,
-                    `res_isq_7` varchar(255) DEFAULT NULL,
-                    `res_isq_8` varchar(255) DEFAULT NULL,
-                    `res_isq_9` varchar(255) DEFAULT NULL,
-                    `res_isq_10` varchar(255) DEFAULT NULL,
-                    `res_isq_13` varchar(255) DEFAULT NULL,
-                    `res_isq_14` varchar(255) DEFAULT NULL,
-                    `res_isq_15` datetime DEFAULT NULL,
-                    PRIMARY KEY (`ass_id`),
-                    UNIQUE KEY `ass_id_UNIQUE` (`ass_id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
-          mysqli_multi_query($con,$sql_save); 
-
-
-          $sql_save = "CREATE TABLE $dbname.sm15_rc (
-                         `reason_code_id` INT(11) NOT NULL AUTO_INCREMENT,
-                         `res_reason_code` VARCHAR(255) NULL, 
-                         `rc_desc` VARCHAR(255) NULL, 
-                         `rc_long_desc` VARCHAR(255) NULL, 
-                         `rc_examples` VARCHAR(255) NULL, 
-                         `rc_action` VARCHAR(255) NULL,
-                         `rc_section` VARCHAR(255) NULL,
-                         PRIMARY KEY (`reason_code_id`),
-                         UNIQUE INDEX `reason_code_id_UNIQUE` (`reason_code_id` ASC));";
-          echo "<br><br>".$sql_save;
-          mysqli_multi_query($con,$sql_save);
-
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES  ('ND10','No financial discrepancies','Asset Found - No Action required','Asset found with all details correct.','ND','ND'); "; 
-          echo $sql_save;
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES  ('NC10','Not In Count','Assets excluded from count.','Asset where the site is inaccessible, i.e. remote locality or project construction areas.','NIC','ERR'); ";
-          mysqli_multi_query($con,$sql_save); 
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('AF10','Asset Found - Ownership','Asset ownership error. The asset management system to be updated to reflect correct owners.','Asset found with incorrect Cost Centre Code.','SAV','ERR'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('AF15','Asset Found - Incorrect Register','Asset found - asset accounted for in the incorrect asset register/system.','An asset found that should be accounted for in MILIS and not ROMAN.','SAV','ERR'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('AF20','Asset Found - Location Transfers','Asset found, however, asset register indicates the asset resides in another base/site.','Demountable moved between Defence properties without asset transfer documentation sent to DFG.','SAV','ERR'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF10','Asset First Found - Project Acquisition','Asset first found - Procured under a National Project Works.','Project asset not brought on to the asset register/system, not communicated to be added to the asset register/system.','SAV','FF'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF15','Asset First Found - Local Estate Works','Asset first found - Procured under Local Estate Works','Asset acquired under the local estate works contract (repair/replacement). Procurement not communicated to DFG, and not added to the asset register/system.','SAV','FF'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF20','Asset First Found - Externally Acquired','Asset first found - asset received from organisation external to Defence.','Asset acquired from another government department without documentation. Asset could have been `Gifted to Defence`.','SAV','FF'); ";
-          mysqli_multi_query($con,$sql_save); 
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF25','Asset First Found - Unexplained','Asset first found - Unexplained.','Asset purchase with no history, no explanation as to its existence. Not communicated to DFG, and not added to the FAR','SAV','FF'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF10','Asset Not Found - Project Disposal','Asset not found - Disposal under National Project','Asset disposed under a National Project not communicated to DFG, not removed from the asset register/system.','SAV','NF'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF15','Asset Not Found - Local Disposal','Asset not found - Locally disposed asset.','Asset disposal, failed to advise DFG of disposal, not removed from the asset register/system.','SAV','NF'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF20','Asset Not Found - Trade in','Asset not found - Procurement Trade-In','Asset used as `Traded-in` in the procurement process, asset owner failed to follow correct disposal process, not communicated to DFG, not removed from the asset register/system.','SAV','NF'); ";
-          mysqli_multi_query($con,$sql_save); 
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF25','Asset Not Found - Local Estate Works','Asset not found - Disposal under Local Estate Works','Asset disposed under a local works, not communicated to DFG, not removed from the asset register/system.','SAV','NF'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF30','Asset Not Found - Unexplained','Asset not found - Unexplained','Asset owner cannot provide information as to its whereabouts.','SAV','NF'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('PE10','Prior Stocktake Error','Stocktake Adjustment error in the asset register/ system, where the error has occurred as a direct result of a previous or current stocktake adjustment.','Reversal of a `write-on` action from a previous stocktake. AFF that should not have been created.','SAV','ERR'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE10','Asset Duplication - Different Register','Errors found for the same asset record in separate registers/ systems/company codes where the error is a direct result of register actions by DFG Register Authority.','Duplication: assets recorded and financially accounted for in multiple register/ systems (ROMAN and MILIS), or in multiple Company Codes, (1000 and 4100).','SAV','ERR'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE15','Asset Duplication - Same Register','Errors found for the same asset record in same asset register/ system, where the error is a direct result of register actions by the Register Authority','Duplication: assets recorded twice for the same physical asset. Assets created as a result of revaluation adjustments.','SAV','ERR'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF99','DLIAA excluded adjustments.','Authorised SAV discrepancies forward to DFG for ROMAN action advice. Adjustments to be conducted by DFG.','ROMAN adjustments relating to Project rollouts.','NIC','ERR'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE20','Asset register Error','General non-financial related errors.','Simple record updates such as, location data, barcode updates, transcription, spelling errors, description i.e. asset description not in UPPER CASE.','ND','ERR'); "; 
-          mysqli_multi_query($con,$sql_save);
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE25','Asset Split','Errors relating to assets that may form part of Merge/Split process.','A Split error is where a single asset record may have been initially created, however the assets characteristics distinctly display two separate physical assets','SAV','ERR'); ";
-          mysqli_multi_query($con,$sql_save); 
-          $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE30','Asset Merge','Errors relating to assets that may form part of Merge/Split process.','A Merge error is where two asset records may have been initially created, when it should have been a single asset record;','SAV','ERR'); "; 
-          // echo "<br><br>".$sql_save;
-          mysqli_multi_query($con,$sql_save);
+     header("Location: 05_action.php?act=sys_reset_data");
 
 
 
 
+}elseif ($act=='sys_reset_data') {
+     $dbname = "smartdb";
+
+     $sql_save = "DROP DATABASE $dbname;";
+     mysqli_multi_query($con,$sql_save); 
+
+   $log .= "<br>"."creating database: $dbname";
+   $sql_save = "CREATE DATABASE $dbname;";
+   mysqli_multi_query($con,$sql_save); 
+
+     $sql_save = "CREATE TABLE $dbname.sm10_set (`smartm_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL DEFAULT NULL,`delete_date` DATETIME NULL DEFAULT NULL,`update_date` DATETIME NULL DEFAULT NULL,`active_profile_id` INT NULL DEFAULT NULL,`last_access_date` DATETIME NULL,`last_access_profile_id` INT(11) NULL,`smartm_software_version` INT(11) NULL,`smartm_db_version` INT(11) NULL,`rr_extract_date` DATETIME NULL, `rr_extract_user` VARCHAR(255) NULL DEFAULT NULL,`journal_id` INT(11) NULL,`help_shown` INT(11) NULL,`theme_type` INT(11) NULL,`date_last_update_check` DATETIME NULL, PRIMARY KEY (`smartm_id`),UNIQUE INDEX `smartm_id_UNIQUE` (`smartm_id` ASC));";
+     mysqli_multi_query($con,$sql_save);
+
+    $sql_save = "INSERT INTO $dbname.sm10_set (create_date, update_date, last_access_date, journal_id, help_shown, theme_type, smartm_software_version) VALUES (NOW(), NOW(), NOW(),1,0,0,1); ";
+     mysqli_multi_query($con,$sql_save);
+
+     $sql_save = "CREATE TABLE $dbname.sm11_pro (`profile_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL DEFAULT NULL,`delete_date` DATETIME NULL DEFAULT NULL,`update_date` DATETIME NULL DEFAULT NULL,`profile_name` VARCHAR(255) NULL DEFAULT NULL,`profile_drn` VARCHAR(255) NULL DEFAULT NULL,`profile_phone_number` VARCHAR(255) NULL DEFAULT NULL,`profile_pic` LONGTEXT NULL DEFAULT NULL,`profile_color_a` VARCHAR(255) NULL DEFAULT NULL,`profile_color_b` VARCHAR(255) NULL DEFAULT NULL,PRIMARY KEY (`profile_id`),UNIQUE INDEX `profile_id_UNIQUE` (`profile_id` ASC));";
+     mysqli_multi_query($con,$sql_save);
+
+     $sql_save = "CREATE TABLE $dbname.sm12_rwr (`rr_id` INT(11) NOT NULL AUTO_INCREMENT,`Asset` VARCHAR(15) NULL DEFAULT NULL,`accNo` VARCHAR(5) NULL DEFAULT NULL, `InventNo` VARCHAR(30) NULL DEFAULT NULL, `AssetDesc1` VARCHAR(255) NULL DEFAULT NULL, `Class` VARCHAR(255) NULL DEFAULT NULL, `ParentName` VARCHAR(255) NULL DEFAULT NULL, PRIMARY KEY (`rr_id`),UNIQUE INDEX `rr_id_UNIQUE` (`rr_id` ASC));";
+     mysqli_multi_query($con,$sql_save);
+
+     $sql_save = "CREATE TABLE $dbname.sm13_stk (`stkm_id` INT NOT NULL AUTO_INCREMENT,`stk_id` INT NULL,`stk_name` VARCHAR(255) NULL,`dpn_extract_date` DATETIME NULL,`dpn_extract_user` VARCHAR(255) NULL,`smm_extract_date` DATETIME NULL,`smm_extract_user` VARCHAR(255) NULL,`smm_delete_date` DATETIME NULL,`smm_delete_user` VARCHAR(255) NULL,`stk_include` INT NULL,`rowcount_original` INT NULL,`journal_text` LONGTEXT NULL,PRIMARY KEY (`stkm_id`),UNIQUE INDEX `stkm_id_UNIQUE` (`stkm_id` ASC));";
+     mysqli_multi_query($con,$sql_save);
+
+     $log .= "<br>"."creating $dbname.sm14_ass ";
+     $sql_save = "
+               CREATE TABLE `$dbname`.`sm14_ass` (
+               `ass_id` int(11) NOT NULL AUTO_INCREMENT,
+               `create_date` datetime DEFAULT NULL,
+               `create_user` varchar(255) DEFAULT NULL,
+               `delete_date` datetime DEFAULT NULL,
+               `delete_user` varchar(255) DEFAULT NULL,
+               `stkm_id` int(11) DEFAULT NULL,
+               `storage_id` int(11) DEFAULT NULL,
+               `stk_include` int(11) DEFAULT NULL,
+
+               `Asset` varchar(255) DEFAULT NULL,
+               `Subnumber` varchar(255) DEFAULT NULL,
+               `impairment_code` varchar(255) DEFAULT NULL,
+
+               `genesis_cat` varchar(255) DEFAULT NULL,
+               `first_found_flag` int(11) DEFAULT NULL,
+               `rr_id` int(11) DEFAULT NULL,
+               `fingerprint` varchar(255) DEFAULT NULL,
 
 
+               `res_create_date` datetime DEFAULT NULL,
+               `res_create_user` varchar(255) DEFAULT NULL,
+               `res_reason_code` varchar(255) DEFAULT NULL,
+               `res_reason_code_desc` varchar(255) DEFAULT NULL,
+               `res_impairment_completed` int(1) DEFAULT NULL,
+               `res_completed` int(1) DEFAULT NULL,
+               `res_comment` varchar(255) DEFAULT NULL,
+
+               `AssetDesc1` varchar(255) DEFAULT NULL,
+               `AssetDesc2` varchar(255) DEFAULT NULL,
+               `AssetMainNoText` varchar(255) DEFAULT NULL,
+               `Class` varchar(255) DEFAULT NULL,
+               `classDesc` varchar(255) DEFAULT NULL,
+               `assetType` varchar(255) DEFAULT NULL,
+               `Inventory` varchar(255) DEFAULT NULL,
+               `Quantity` int(11) DEFAULT NULL,
+               `SNo` varchar(255) DEFAULT NULL,
+               `InventNo` varchar(255) DEFAULT NULL,
+               `accNo` varchar(255) DEFAULT NULL,
+               `Location` varchar(255) DEFAULT NULL,
+               `Room` varchar(255) DEFAULT NULL,
+               `State` varchar(255) DEFAULT NULL,
+               `latitude` varchar(255) DEFAULT NULL,
+               `longitude` varchar(255) DEFAULT NULL,
+               `CurrentNBV` decimal(15,2) DEFAULT NULL,
+               `AcqValue` decimal(15,2) DEFAULT NULL,
+               `OrigValue` decimal(15,2) DEFAULT NULL,
+               `ScrapVal` decimal(15,2) DEFAULT NULL,
+               `ValMethod` varchar(255) DEFAULT NULL,
+               `RevOdep` varchar(255) DEFAULT NULL,
+               `CapDate` datetime DEFAULT NULL,
+               `LastInv` datetime DEFAULT NULL,
+               `DeactDate` datetime DEFAULT NULL,
+               `PlRetDate` datetime DEFAULT NULL,
+               `CCC_ParentName` varchar(255) DEFAULT NULL,
+               `CCC_GrandparentName` varchar(255) DEFAULT NULL,
+               `GrpCustod` varchar(255) DEFAULT NULL,
+               `CostCtr` varchar(255) DEFAULT NULL,
+               `WBSElem` varchar(255) DEFAULT NULL,
+               `Fund` varchar(255) DEFAULT NULL,
+               `RspCCtr` varchar(255) DEFAULT NULL,
+               `CoCd` varchar(255) DEFAULT NULL,
+               `PlateNo` varchar(255) DEFAULT NULL,
+               `Vendor` varchar(255) DEFAULT NULL,
+               `Mfr` varchar(255) DEFAULT NULL,
+               `UseNo` varchar(255) DEFAULT NULL,
 
 
+               `res_AssetDesc1` varchar(255) DEFAULT NULL,
+               `res_AssetDesc2` varchar(255) DEFAULT NULL,
+               `res_AssetMainNoText` varchar(255) DEFAULT NULL,
+               `res_Class` varchar(255) DEFAULT NULL,
+               `res_classDesc` varchar(255) DEFAULT NULL,
+               `res_assetType` varchar(255) DEFAULT NULL,
+               `res_Inventory` varchar(255) DEFAULT NULL,
+               `res_Quantity` int(11) DEFAULT NULL,
+               `res_SNo` varchar(255) DEFAULT NULL,
+               `res_InventNo` varchar(255) DEFAULT NULL,
+               `res_accNo` varchar(255) DEFAULT NULL,
+               `res_Location` varchar(255) DEFAULT NULL,
+               `res_Room` varchar(255) DEFAULT NULL,
+               `res_State` varchar(255) DEFAULT NULL,
+               `res_latitude` varchar(255) DEFAULT NULL,
+               `res_longitude` varchar(255) DEFAULT NULL,
+               `res_CurrentNBV` decimal(15,2) DEFAULT NULL,
+               `res_AcqValue` decimal(15,2) DEFAULT NULL,
+               `res_OrigValue` decimal(15,2) DEFAULT NULL,
+               `res_ScrapVal` decimal(15,2) DEFAULT NULL,
+               `res_ValMethod` varchar(255) DEFAULT NULL,
+               `res_RevOdep` varchar(255) DEFAULT NULL,
+               `res_CapDate` datetime DEFAULT NULL,
+               `res_LastInv` datetime DEFAULT NULL,
+               `res_DeactDate` datetime DEFAULT NULL,
+               `res_PlRetDate` datetime DEFAULT NULL,
+               `res_CCC_ParentName` varchar(255) DEFAULT NULL,
+               `res_CCC_GrandparentName` varchar(255) DEFAULT NULL,
+               `res_GrpCustod` varchar(255) DEFAULT NULL,
+               `res_CostCtr` varchar(255) DEFAULT NULL,
+               `res_WBSElem` varchar(255) DEFAULT NULL,
+               `res_Fund` varchar(255) DEFAULT NULL,
+               `res_RspCCtr` varchar(255) DEFAULT NULL,
+               `res_CoCd` varchar(255) DEFAULT NULL,
+               `res_PlateNo` varchar(255) DEFAULT NULL,
+               `res_Vendor` varchar(255) DEFAULT NULL,
+               `res_Mfr` varchar(255) DEFAULT NULL,
+               `res_UseNo` varchar(255) DEFAULT NULL,
+
+               `res_isq_5` varchar(255) DEFAULT NULL,
+               `res_isq_6` varchar(255) DEFAULT NULL,
+               `res_isq_7` varchar(255) DEFAULT NULL,
+               `res_isq_8` varchar(255) DEFAULT NULL,
+               `res_isq_9` varchar(255) DEFAULT NULL,
+               `res_isq_10` varchar(255) DEFAULT NULL,
+               `res_isq_13` varchar(255) DEFAULT NULL,
+               `res_isq_14` varchar(255) DEFAULT NULL,
+               `res_isq_15` datetime DEFAULT NULL,
+               PRIMARY KEY (`ass_id`),
+               UNIQUE KEY `ass_id_UNIQUE` (`ass_id`)
+               ) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
+     mysqli_multi_query($con,$sql_save); 
 
 
+     $sql_save = "CREATE TABLE $dbname.sm15_rc (
+                    `reason_code_id` INT(11) NOT NULL AUTO_INCREMENT,
+                    `res_reason_code` VARCHAR(255) NULL, 
+                    `rc_desc` VARCHAR(255) NULL, 
+                    `rc_long_desc` VARCHAR(255) NULL, 
+                    `rc_examples` VARCHAR(255) NULL, 
+                    `rc_action` VARCHAR(255) NULL,
+                    `rc_section` VARCHAR(255) NULL,
+                    PRIMARY KEY (`reason_code_id`),
+                    UNIQUE INDEX `reason_code_id_UNIQUE` (`reason_code_id` ASC));";
+     echo "<br><br>".$sql_save;
+     mysqli_multi_query($con,$sql_save);
+
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES  ('ND10','No financial discrepancies','Asset Found - No Action required','Asset found with all details correct.','ND','ND'); "; 
+     echo $sql_save;
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES  ('NC10','Not In Count','Assets excluded from count.','Asset where the site is inaccessible, i.e. remote locality or project construction areas.','NIC','ERR'); ";
+     mysqli_multi_query($con,$sql_save); 
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('AF10','Asset Found - Ownership','Asset ownership error. The asset management system to be updated to reflect correct owners.','Asset found with incorrect Cost Centre Code.','SAV','ERR'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('AF15','Asset Found - Incorrect Register','Asset found - asset accounted for in the incorrect asset register/system.','An asset found that should be accounted for in MILIS and not ROMAN.','SAV','ERR'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('AF20','Asset Found - Location Transfers','Asset found, however, asset register indicates the asset resides in another base/site.','Demountable moved between Defence properties without asset transfer documentation sent to DFG.','SAV','ERR'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF10','Asset First Found - Project Acquisition','Asset first found - Procured under a National Project Works.','Project asset not brought on to the asset register/system, not communicated to be added to the asset register/system.','SAV','FF'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF15','Asset First Found - Local Estate Works','Asset first found - Procured under Local Estate Works','Asset acquired under the local estate works contract (repair/replacement). Procurement not communicated to DFG, and not added to the asset register/system.','SAV','FF'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF20','Asset First Found - Externally Acquired','Asset first found - asset received from organisation external to Defence.','Asset acquired from another government department without documentation. Asset could have been `Gifted to Defence`.','SAV','FF'); ";
+     mysqli_multi_query($con,$sql_save); 
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF25','Asset First Found - Unexplained','Asset first found - Unexplained.','Asset purchase with no history, no explanation as to its existence. Not communicated to DFG, and not added to the FAR','SAV','FF'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF10','Asset Not Found - Project Disposal','Asset not found - Disposal under National Project','Asset disposed under a National Project not communicated to DFG, not removed from the asset register/system.','SAV','NF'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF15','Asset Not Found - Local Disposal','Asset not found - Locally disposed asset.','Asset disposal, failed to advise DFG of disposal, not removed from the asset register/system.','SAV','NF'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF20','Asset Not Found - Trade in','Asset not found - Procurement Trade-In','Asset used as `Traded-in` in the procurement process, asset owner failed to follow correct disposal process, not communicated to DFG, not removed from the asset register/system.','SAV','NF'); ";
+     mysqli_multi_query($con,$sql_save); 
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF25','Asset Not Found - Local Estate Works','Asset not found - Disposal under Local Estate Works','Asset disposed under a local works, not communicated to DFG, not removed from the asset register/system.','SAV','NF'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('NF30','Asset Not Found - Unexplained','Asset not found - Unexplained','Asset owner cannot provide information as to its whereabouts.','SAV','NF'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('PE10','Prior Stocktake Error','Stocktake Adjustment error in the asset register/ system, where the error has occurred as a direct result of a previous or current stocktake adjustment.','Reversal of a `write-on` action from a previous stocktake. AFF that should not have been created.','SAV','ERR'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE10','Asset Duplication - Different Register','Errors found for the same asset record in separate registers/ systems/company codes where the error is a direct result of register actions by DFG Register Authority.','Duplication: assets recorded and financially accounted for in multiple register/ systems (ROMAN and MILIS), or in multiple Company Codes, (1000 and 4100).','SAV','ERR'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE15','Asset Duplication - Same Register','Errors found for the same asset record in same asset register/ system, where the error is a direct result of register actions by the Register Authority','Duplication: assets recorded twice for the same physical asset. Assets created as a result of revaluation adjustments.','SAV','ERR'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('FF99','DLIAA excluded adjustments.','Authorised SAV discrepancies forward to DFG for ROMAN action advice. Adjustments to be conducted by DFG.','ROMAN adjustments relating to Project rollouts.','NIC','ERR'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE20','Asset register Error','General non-financial related errors.','Simple record updates such as, location data, barcode updates, transcription, spelling errors, description i.e. asset description not in UPPER CASE.','ND','ERR'); "; 
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE25','Asset Split','Errors relating to assets that may form part of Merge/Split process.','A Split error is where a single asset record may have been initially created, however the assets characteristics distinctly display two separate physical assets','SAV','ERR'); ";
+     mysqli_multi_query($con,$sql_save); 
+     $sql_save = "INSERT INTO $dbname.sm15_rc (res_reason_code, rc_desc, rc_long_desc, rc_examples, rc_action, rc_section) VALUES ('RE30','Asset Merge','Errors relating to assets that may form part of Merge/Split process.','A Merge error is where two asset records may have been initially created, when it should have been a single asset record;','SAV','ERR'); "; 
+     // echo "<br><br>".$sql_save;
+     mysqli_multi_query($con,$sql_save);
 
 
-
-
-    }//End create database area
 
      header("Location: index.php");
 
@@ -750,6 +738,129 @@ mysqli_multi_query($con,$sql_save);
      unlink($photo_filename) or die("Couldn't delete file");
 
      header("Location: 11_ass.php?ass_id=".$ass_id);
+
+
+
+}elseif ($act=='get_asset_list') {
+     $search_term = $_GET["search_term"];     
+     $ar = array();
+     $sql = "  SELECT ass_id, Asset, AssetDesc1, AssetDesc2, Subnumber 
+               FROM smartdb.sm14_ass 
+
+               WHERE storage_id LIKE '%$search_term%'
+               OR stk_include LIKE '%$search_term%'
+               OR Asset LIKE '%$search_term%'
+               OR Subnumber LIKE '%$search_term%'
+               OR impairment_code LIKE '%$search_term%'
+               OR genesis_cat LIKE '%$search_term%'
+               OR first_found_flag LIKE '%$search_term%'
+               OR rr_id LIKE '%$search_term%'
+               OR fingerprint LIKE '%$search_term%'
+               OR res_create_date LIKE '%$search_term%'
+               OR res_create_user LIKE '%$search_term%'
+               OR res_reason_code LIKE '%$search_term%'
+               OR res_reason_code_desc LIKE '%$search_term%'
+               OR res_impairment_completed LIKE '%$search_term%'
+               OR res_completed LIKE '%$search_term%'
+               OR res_comment LIKE '%$search_term%'
+               OR AssetDesc1 LIKE '%$search_term%'
+               OR AssetDesc2 LIKE '%$search_term%'
+               OR AssetMainNoText LIKE '%$search_term%'
+               OR Class LIKE '%$search_term%'
+               OR classDesc LIKE '%$search_term%'
+               OR assetType LIKE '%$search_term%'
+               OR Inventory LIKE '%$search_term%'
+               OR Quantity LIKE '%$search_term%'
+               OR SNo LIKE '%$search_term%'
+               OR InventNo LIKE '%$search_term%'
+               OR accNo LIKE '%$search_term%'
+               OR Location LIKE '%$search_term%'
+               OR Room LIKE '%$search_term%'
+               OR State LIKE '%$search_term%'
+               OR latitude LIKE '%$search_term%'
+               OR longitude LIKE '%$search_term%'
+               OR CurrentNBV LIKE '%$search_term%'
+               OR AcqValue LIKE '%$search_term%'
+               OR OrigValue LIKE '%$search_term%'
+               OR ScrapVal LIKE '%$search_term%'
+               OR ValMethod LIKE '%$search_term%'
+               OR RevOdep LIKE '%$search_term%'
+               OR CapDate LIKE '%$search_term%'
+               OR LastInv LIKE '%$search_term%'
+               OR DeactDate LIKE '%$search_term%'
+               OR PlRetDate LIKE '%$search_term%'
+               OR CCC_ParentName LIKE '%$search_term%'
+               OR CCC_GrandparentName LIKE '%$search_term%'
+               OR GrpCustod LIKE '%$search_term%'
+               OR CostCtr LIKE '%$search_term%'
+               OR WBSElem LIKE '%$search_term%'
+               OR Fund LIKE '%$search_term%'
+               OR RspCCtr LIKE '%$search_term%'
+               OR CoCd LIKE '%$search_term%'
+               OR PlateNo LIKE '%$search_term%'
+               OR Vendor LIKE '%$search_term%'
+               OR Mfr LIKE '%$search_term%'
+               OR UseNo LIKE '%$search_term%'
+               OR res_AssetDesc1 LIKE '%$search_term%'
+               OR res_AssetDesc2 LIKE '%$search_term%'
+               OR res_AssetMainNoText LIKE '%$search_term%'
+               OR res_Class LIKE '%$search_term%'
+               OR res_classDesc LIKE '%$search_term%'
+               OR res_assetType LIKE '%$search_term%'
+               OR res_Inventory LIKE '%$search_term%'
+               OR res_Quantity LIKE '%$search_term%'
+               OR res_SNo LIKE '%$search_term%'
+               OR res_InventNo LIKE '%$search_term%'
+               OR res_accNo LIKE '%$search_term%'
+               OR res_Location LIKE '%$search_term%'
+               OR res_Room LIKE '%$search_term%'
+               OR res_State LIKE '%$search_term%'
+               OR res_latitude LIKE '%$search_term%'
+               OR res_longitude LIKE '%$search_term%'
+               OR res_CurrentNBV LIKE '%$search_term%'
+               OR res_AcqValue LIKE '%$search_term%'
+               OR res_OrigValue LIKE '%$search_term%'
+               OR res_ScrapVal LIKE '%$search_term%'
+               OR res_ValMethod LIKE '%$search_term%'
+               OR res_RevOdep LIKE '%$search_term%'
+               OR res_CapDate LIKE '%$search_term%'
+               OR res_LastInv LIKE '%$search_term%'
+               OR res_DeactDate LIKE '%$search_term%'
+               OR res_PlRetDate LIKE '%$search_term%'
+               OR res_CCC_ParentName LIKE '%$search_term%'
+               OR res_CCC_GrandparentName LIKE '%$search_term%'
+               OR res_GrpCustod LIKE '%$search_term%'
+               OR res_CostCtr LIKE '%$search_term%'
+               OR res_WBSElem LIKE '%$search_term%'
+               OR res_Fund LIKE '%$search_term%'
+               OR res_RspCCtr LIKE '%$search_term%'
+               OR res_CoCd LIKE '%$search_term%'
+               OR res_PlateNo LIKE '%$search_term%'
+               OR res_Vendor LIKE '%$search_term%'
+               OR res_Mfr LIKE '%$search_term%'
+               OR res_UseNo LIKE '%$search_term%'
+
+ 
+               LIMIT 10";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+          while($row = $result->fetch_assoc()) {
+               $arr = array();
+               // $ass_id         = $row["ass_id"];
+               // $Asset         = $row["Asset"];
+               // $Subnumber     = $row["Subnumber"];
+               // $AssetDesc1    = $row["AssetDesc1"];
+               // $ar[]          = $Asset;
+               // $ar[]          = '"'.$row["ass_id"].'":"'.$row["Asset"].'"';
+               // $arr["ass_id"]       = $row["ass_id"];
+               // $arr["Asset"]        = $row["Asset"];
+               // $arr["AssetDesc1"]   = $row["AssetDesc1"];
+               // $arr["Subnumber"]    = $row["Subnumber"];
+               $arr["label"] = $row["Asset"].'-'.$row["Subnumber"].':'.$row["AssetDesc1"];
+               $arr["value"] = $row["ass_id"];
+               $ar[]          = $arr;
+     }}
+     echo json_encode($ar);
 
 }
 // echo $log;

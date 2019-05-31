@@ -167,7 +167,7 @@ foreach ($a as $key => $value) {
 $img_list = "<div class='row'><div class='col-12'><div class='form-group'><h2>Images</h2>$img_list</div></div></div>";
 
 
-$btn_camera = "<br><br><a href='13_camera.php?ass_id=".$ass_id."' class='btn btn-secondary text-center' ><span class='octicon octicon-device-camera' style='font-size:30px' v-if='ar.show_camera_btn'></span></a>";
+$btn_camera = "<br><br><a href='13_camera.php?ass_id=".$ass_id."' class='btn btn-secondary text-center'  v-if='ar.show_camera_btn'><span class='octicon octicon-device-camera' style='font-size:30px'></span></a>";
 
 
 ?>
@@ -579,6 +579,8 @@ Add fix me portal
 Add merge
 Add history
 Add user login
+On page search
+
  -->
 
 

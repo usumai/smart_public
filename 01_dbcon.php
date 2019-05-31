@@ -41,4 +41,18 @@ function is_connected()
 $is_conn = is_connected();
 // echo $is_conn;
 
+
+$sql = "SELECT count(*) as dbexists FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'smartdb'";
+$result = $con->query($sql);
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $dbexists    = $row["dbexists"];
+}}
+// echo "<br><br><br>".$dbexists; 
+if ($dbexists==0) {
+    header("Location: 05_action.php?act=sys_initialise");
+}
+
+
+
 ?>
