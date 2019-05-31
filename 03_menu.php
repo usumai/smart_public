@@ -105,7 +105,21 @@ $( function() {
             // console.log("Selected: " + ui.item.value + " aka " + ui.item.id )
             window.location.href = "11_ass.php?ass_id="+ui.item.value;
         }
-    });
+    })
+
+               // $arr["AssetDesc1"]       = $row["AssetDesc1"];
+               // $arr["AssetDesc2"]       = $row["AssetDesc2"];
+               // $arr["InventNo"]         = $row["InventNo"];
+               // $arr["SNo"]              = $row["SNo"];
+               // $arr["Location"]         = $row["Location"];
+               // $arr["Room"]             = $row["Room"];
+    .autocomplete( "instance" )._renderItem = function( ul, item ) {
+      return $( "<li>" )
+        .append( 
+            "<div><b>"+item.Asset+"-"+item.Subnumber+"</b>:"+item.AssetDesc1+
+            "<br>"+item.status_compl+" InventNo["+item.InventNo+"] Serial["+item.SNo+"] Location["+item.Location+""+item.Room+"]</div>" )
+        .appendTo( ul );
+    };
 
 });
 </script>

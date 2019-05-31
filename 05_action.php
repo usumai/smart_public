@@ -315,12 +315,27 @@ if ($act=='sys_pull_master') {
      $fileContents  = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $fileContents);
      $arr_full      = json_decode($fileContents, true);
      $arr           = $arr_full['import'];
+
+     function cleanvalue($fieldvalue) {
+          $fieldvalue = str_replace("'", "\'", $fieldvalue);
+          $fieldvalue = str_replace('"', '\"', $fieldvalue);
+          // $fieldvalue = str_replace("""", "/""", $fieldvalue);
+         if ($fieldvalue=="") {
+               $fieldvalue="NULL";
+          }
+          else{
+               $fieldvalue="'".$fieldvalue."'";
+          }
+          return $fieldvalue;
+     }
+
+
      $stk_id                  = $arr['stk_id'];
      $stk_name                = $arr['stk_name'];
      $dpn_extract_date        = $arr['dpn_extract_date'];
      $dpn_extract_user        = $arr['dpn_extract_user'];
-     $smm_extract_date        = $arr['smm_extract_date'];
-     $smm_extract_user        = $arr['smm_extract_user'];
+     $smm_extract_date        = cleanvalue($arr['smm_extract_date']);
+     $smm_extract_user        = cleanvalue($arr['smm_extract_user']);
      $journal_text            = $arr['journal_text'];
      $rowcount_original       = $arr['rowcount_original'];
      $rowcount_firstfound     = $arr['rowcount_firstfound'];
@@ -333,7 +348,7 @@ if ($act=='sys_pull_master') {
                // print_r($assets) ;
      }
 
-     $sql_save = "INSERT INTO smartdb.sm13_stk (stk_id,stk_name,dpn_extract_date,dpn_extract_user,smm_extract_date,smm_extract_user,rowcount_original,journal_text) VALUES ('".$stk_id."','".$stk_name."','".$dpn_extract_date."','".$dpn_extract_user."','".$smm_extract_date."','".$smm_extract_user."','".$rowcount_original."','".$journal_text."'); ";
+     $sql_save = "INSERT INTO smartdb.sm13_stk (stk_id,stk_name,dpn_extract_date,dpn_extract_user,smm_extract_date,smm_extract_user,rowcount_original,journal_text) VALUES ('".$stk_id."','".$stk_name."','".$dpn_extract_date."','".$dpn_extract_user."',".$smm_extract_date.",".$smm_extract_user.",'".$rowcount_original."','".$journal_text."'); ";
      if ($dev) { echo "<br>sql_save: ".$sql_save; }
      mysqli_multi_query($con,$sql_save);
 
@@ -356,18 +371,6 @@ if ($act=='sys_pull_master') {
 
 
 
-     function cleanvalue($fieldvalue) {
-          $fieldvalue = str_replace("'", "\'", $fieldvalue);
-          $fieldvalue = str_replace('"', '\"', $fieldvalue);
-          // $fieldvalue = str_replace("""", "/""", $fieldvalue);
-         if ($fieldvalue=="") {
-               $fieldvalue="NULL";
-          }
-          else{
-               $fieldvalue="'".$fieldvalue."'";
-          }
-          return $fieldvalue;
-     }
 
      mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
      foreach($assets as $ass) {
@@ -647,10 +650,11 @@ if ($act=='sys_pull_master') {
              $active_profile_id    = $row["active_profile_id"];
      }}
 
+     $fingerprint        = time();
      $sql_save=" INSERT INTO smartdb.sm14_ass 
      (stkm_id, create_date, create_user, stk_include, Asset, genesis_cat, first_found_flag, res_create_date, res_create_user,
-     res_reason_code, res_completed, res_AssetDesc1) 
-     VALUES('".$stkm_id."', NOW(), '".$active_profile_id."',1,'First found','First found',1,NOW(), '".$active_profile_id."','".$res_reason_code."', 1, '".$asset_template."'); ";
+     res_reason_code, res_completed, res_AssetDesc1, fingerprint) 
+     VALUES('".$stkm_id."', NOW(), '".$active_profile_id."',1,'First found','First found',1,NOW(), '".$active_profile_id."','".$res_reason_code."', 1, '".$asset_template."','$fingerprint'); ";
      mysqli_multi_query($con,$sql_save);
      echo "<br><br>".$sql_save;
 
@@ -703,13 +707,19 @@ if ($act=='sys_pull_master') {
      $result = $con->query($sql);
      if ($result->num_rows > 0) {
           while($row = $result->fetch_assoc()) {
-               $Asset         = $row["Asset"];
-               $Subnumber     = $row["Subnumber"];
+               $Asset              = $row["Asset"];
+               $Subnumber          = $row["Subnumber"];
+               $fingerprint        = $row["fingerprint"];
      }}
+     // echo "Asset: ".$Asset; 
+     if ($Asset=="First found") {
+          $photo_name              = "images/".$fingerprint;
+     }else{
+          $photo_name              = "images/".$Asset.'-'.$Subnumber;
+     }
+     $original_photo_name     = $photo_name;
 
      $counter = 1;
-     $photo_name              = "images/".$Asset.'-'.$Subnumber;
-     $original_photo_name     = $photo_name;
      $photo_name              = $photo_name.'_'.$counter.'.jpg';
      while (file_exists($photo_name)) {
           $counter++;
@@ -744,7 +754,14 @@ if ($act=='sys_pull_master') {
 }elseif ($act=='get_asset_list') {
      $search_term = $_GET["search_term"];     
      $ar = array();
-     $sql = "  SELECT ass_id, Asset, AssetDesc1, AssetDesc2, Subnumber 
+     $sql = "  SELECT *, 
+               CASE WHEN res_AssetDesc1 IS NULL THEN AssetDesc1 ELSE res_AssetDesc1 END AS best_AssetDesc1,
+               CASE WHEN res_AssetDesc2 IS NULL THEN AssetDesc2 ELSE res_AssetDesc2 END AS best_AssetDesc2,
+               CASE WHEN res_InventNo IS NULL THEN InventNo ELSE res_InventNo END AS best_InventNo,
+               CASE WHEN res_SNo IS NULL THEN SNo ELSE res_SNo END AS best_SNo,
+               CASE WHEN res_Location IS NULL THEN Location ELSE res_Location END AS best_Location,
+               CASE WHEN res_Room IS NULL THEN Room ELSE res_Room END AS best_Room
+
                FROM smartdb.sm14_ass 
 
                WHERE storage_id LIKE '%$search_term%'
@@ -846,18 +863,24 @@ if ($act=='sys_pull_master') {
      if ($result->num_rows > 0) {
           while($row = $result->fetch_assoc()) {
                $arr = array();
-               // $ass_id         = $row["ass_id"];
-               // $Asset         = $row["Asset"];
-               // $Subnumber     = $row["Subnumber"];
-               // $AssetDesc1    = $row["AssetDesc1"];
-               // $ar[]          = $Asset;
-               // $ar[]          = '"'.$row["ass_id"].'":"'.$row["Asset"].'"';
-               // $arr["ass_id"]       = $row["ass_id"];
-               // $arr["Asset"]        = $row["Asset"];
-               // $arr["AssetDesc1"]   = $row["AssetDesc1"];
-               // $arr["Subnumber"]    = $row["Subnumber"];
-               $arr["label"] = $row["Asset"].'-'.$row["Subnumber"].':'.$row["AssetDesc1"];
-               $arr["value"] = $row["ass_id"];
+               $arr["label"]       = $row["Asset"].'-'.$row["Subnumber"].':'.$row["AssetDesc1"];
+               $arr["Asset"]            = $row["Asset"];
+               $arr["Subnumber"]        = $row["Subnumber"];
+               $arr["AssetDesc1"]       = $row["best_AssetDesc1"];
+               $arr["AssetDesc2"]       = $row["best_AssetDesc2"];
+               $arr["InventNo"]         = $row["best_InventNo"];
+               $arr["SNo"]              = $row["best_SNo"];
+               $arr["Location"]         = $row["best_Location"];
+               $arr["Room"]             = $row["best_Room"];
+               // $arr["res_completed"]    = $row["res_completed"];
+
+               if ($row["res_completed"]==1) {
+                    $arr["status_compl"] = "<span class='octicon octicon-check text-success'></span>";
+               }else{
+                    $arr["status_compl"] = "<span class='octicon octicon-x text-danger' ></span>";
+               }
+
+               $arr["value"]  = $row["ass_id"];
                $ar[]          = $arr;
      }}
      echo json_encode($ar);

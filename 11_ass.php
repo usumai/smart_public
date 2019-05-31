@@ -147,23 +147,31 @@ $Subnumber 	= $arrsql[0]['Subnumber'];
 $a 			= scandir("images/");
 $img_list 	= "";
 $images 	= "";
-foreach ($a as $key => $value) {
-    if (substr($value, 0,8)=="$Asset-$Subnumber")  {
-		$clean_val = str_replace("-", "", $value);
+if ($Asset=="First found") {
+	$photo_name_test	= $arrsql[0]['fingerprint'];
+}else{
+	$photo_name_test	= $Asset.'-'.$Subnumber;
+}
+foreach ($a as $key => $photo_name) {
+	$photo_name_parts = explode("_",$photo_name);
+    if ($photo_name_parts[0]==$photo_name_test)  {
+		$clean_val = str_replace("-", "", $photo_name);
 		$clean_val = str_replace(".jpg", "", $clean_val);
 		$clean_val = str_replace("_", "", $clean_val);
-		$img_list .= "<button type='button' class='btn thumb_photo' value='".$clean_val."' data-toggle='modal' data-target='#modal_show_pic'  v-on:click='update_image(`".$value."`)' id='thumb_".$clean_val."'><img src='images/".$value."?".time()."' width='200px'></button>"; 
+		$img_list .= "<button type='button' class='btn thumb_photo' value='".$clean_val."' data-toggle='modal' data-target='#modal_show_pic'  v-on:click='update_image(`".$photo_name."`)' id='thumb_".$clean_val."'><img src='images/".$photo_name."?".time()."' width='200px'></button>"; 
 
 		$btn_delete = "	<div class='dropdown'>
 						    <button class='nav-link btn btn-outline-dark dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Delete</button>
 						    <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
-						        <a class='dropdown-item bg-danger text-light' href='05_action.php?act=save_delete_photo&ass_id=$ass_id&photo_filename=".$value."' id='btn_delete_photo'>I'm sure</a>
+						        <a class='dropdown-item bg-danger text-light' href='05_action.php?act=save_delete_photo&ass_id=$ass_id&photo_filename=".$photo_name."' id='btn_delete_photo'>I'm sure</a>
 						    </div>
 						</div>";
 
-		$images .= "<span class='btn_photo' id='".$clean_val."' ><img src='images/".$value."' width='100%'>".$btn_delete."</span>"; 
+		$images .= "<span class='btn_photo' id='".$clean_val."' ><img src='images/".$photo_name."' width='100%'>".$btn_delete."</span>"; 
     }
 }
+
+
 $img_list = "<div class='row'><div class='col-12'><div class='form-group'><h2>Images</h2>$img_list</div></div></div>";
 
 
@@ -554,24 +562,24 @@ $( function() {
 
 
 
-<div class="modal fade" id="modal_show_pic" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Photo</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">  
-		<?=$images?> 
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Back</button>
-      </div>
-    </div>
-  </div>
-</div>
+			<div class="modal fade" id="modal_show_pic" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			  <div class="modal-dialog modal-lg" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLabel">Photo</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">  
+					<?=$images?> 
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Back</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
 
 <!-- 
 Add raw remainder
@@ -579,8 +587,6 @@ Add fix me portal
 Add merge
 Add history
 Add user login
-On page search
-
  -->
 
 

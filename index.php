@@ -19,6 +19,7 @@ if ($result->num_rows > 0) {
         $smm_delete_user    = $row["smm_delete_user"];
         $stk_include        = $row["stk_include"];
         $journal_text       = $row["journal_text"];
+        $rowcount_original  = $row["rowcount_original"];
 
         if ($stk_include==1) {
             $flag_included  = $icon_spot_green;
@@ -30,7 +31,6 @@ if ($result->num_rows > 0) {
             $btn_archive = "<a class='dropdown-item' href='05_action.php?act=save_archive_stk&stkm_id=$stkm_id'>Archive</a>";
         }
         $sql = "SELECT 
-                    sum(CASE WHEN storage_id IS NOT NULL THEN 1 ELSE 0 END) AS rowcount_original,
                     sum(CASE WHEN first_found_flag = 1 THEN 1 ELSE 0 END) AS rowcount_firstfound,
                     sum(CASE WHEN res_completed = 1 THEN 1 ELSE 0 END) AS rowcount_completed,
                     sum(CASE WHEN storage_id IS NULL AND first_found_flag <> 1 THEN 1 ELSE 0 END) AS rowcount_other
@@ -38,7 +38,6 @@ if ($result->num_rows > 0) {
         $result2 = $con->query($sql);
         if ($result2->num_rows > 0) {
         while($row2 = $result2->fetch_assoc()) {
-            $rowcount_original      = $row2["rowcount_original"];
             $rowcount_firstfound    = $row2["rowcount_firstfound"];
             $rowcount_completed     = $row2["rowcount_completed"];
             $rowcount_other         = $row2["rowcount_other"];
