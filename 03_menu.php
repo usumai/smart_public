@@ -55,7 +55,6 @@ $result = $con->query($sql);
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
         $livecount            = $row["livecount"];
-
 }}
 if($livecount>0){
     // $btn_stk = "<a href='10_stk.php' class='nav-link btn btn-sm btn-success'>Stocktake</a>";
@@ -77,6 +76,20 @@ if (!$internet_connectivity) {
     $area_version_status    = "<span class='dropdown-item'>An internet connection is required to update software</span>";
 }
 
+
+$sql = "SELECT count(*) as rowcount_rr FROM smartdb.sm12_rwr;";
+$result = $con->query($sql);
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $rowcount_rr = $row["rowcount_rr"];
+}}
+if ($rowcount_rr>0) {
+    $status_rr = "<span class='dropdown-item'>$rowcount_rr assets</span>";
+}else{
+    $status_rr = "<span class='dropdown-item'>Not loaded</span>";
+}
+$area_rr = $drpd_div."<h6 class='dropdown-header'>Raw remainder</h6>".$status_rr;
+                        
 
 $menu_software = $area_last_update . $area_version_status.$btn_push_master ;
 
@@ -147,6 +160,7 @@ $( function() {
                         <a class='dropdown-item' href='06_admin.php'>Archived Stocktakes</a>
                         <button type='button' class='dropdown-item btn btn-danger' data-toggle='modal' data-target='#modal_confirm_reset'>Reset all data</button>
                         <a class="dropdown-item" href="05_action.php?act=save_invertcolors">Invert Colour Scheme</a>
+                        <?=$area_rr?>
                     </div>
                 </li>
                 <li class="nav-item">

@@ -84,7 +84,7 @@ if ($result->num_rows > 0) {
 
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#loading_spinner').hide();
+    $('#area_upload_status').hide();
     $('#fileToUpload').change(function(){
         let filename = $(this).val();
         if (filename) {
@@ -94,9 +94,28 @@ $(document).ready(function() {
         }
     });
     $('#btn_submit_upload').click(function(){
-        $('#loading_spinner').show();    
+        $('#area_upload_status').show();    
         $('#form_upload').hide();
+        check_upload_progress();
     });
+
+    function check_upload_progress(){
+        // do whatever you like here
+        $.get( {
+            url: "05_action.php",
+            data: {
+                act: "get_check_upload_rr"
+            },
+            success: function( data ) {
+                console.log(data)
+                $("#upload_count").text(data+" records uploaded");
+            }
+        });
+        setTimeout(check_upload_progress, 1000);//1000 = 1 sec
+    }
+
+
+
 });
 </script>
 <main role="main" class="flex-shrink-0">
@@ -132,10 +151,12 @@ $(document).ready(function() {
         <input type="hidden" name="act" value="upload_file">
         <input type="submit" value="Upload File" name="submit" class="btn btn-link" id="btn_submit_upload" style="display:none">
     </form>
-
-    <div class="spinner-border" role="status" id='loading_spinner' style="width: 3rem; height: 3rem;" style="display:none!important">
-        <span class="sr-only" style="">Loading...</span>Uploading&nbsp;file
-    </div>
-
+    <span id="area_upload_status" style="display:none!important">
+        <div class="spinner-border" role="status" id='loading_spinner' style="width: 3rem; height: 3rem;">
+            <span class="sr-only" style="">Loading...</span>
+        </div>
+        <span id="upload_count"></span>
+    </span>
+    
 </div>
 <?php include "04_footer.php"; ?>

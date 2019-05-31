@@ -51,7 +51,7 @@ $(document).ready(function() {
             $("#table_rr").html("");
             $.post("05_action.php",
             {
-                actionType: "get_rawremainder_asset_count",
+                act: "get_rawremainder_asset_count",
                 search_term: search_term
             },
             function(data, status){
