@@ -121,39 +121,35 @@ $(document).ready(function() {
 $assetType = "";
 
 $rw_ass = "";
-$sql = "SELECT ass_id, Asset, first_found_flag, Subnumber, Class, Location, Room, AssetDesc1, AssetDesc2, InventNo, SNo, impairment_code, CurrentNBV, res_reason_code, res_completed FROM smartdb.sm14_ass WHERE stk_include=1 AND delete_date IS NULL";
+$sql = "SELECT ass_id, Subnumber, Class, impairment_code, CurrentNBV, res_reason_code, res_completed,
+            CASE WHEN first_found_flag = 1 THEN CONCAT('FF~',fingerprint) ELSE Asset END AS best_Asset,
+            CASE WHEN res_Location IS NULL THEN Location ELSE res_Location END AS best_Location,
+            CASE WHEN res_Room IS NULL THEN Room ELSE res_Room END AS best_Room,
+            CASE WHEN res_AssetDesc1 IS NULL THEN AssetDesc1 ELSE res_AssetDesc1 END AS best_AssetDesc1,
+            CASE WHEN res_AssetDesc2 IS NULL THEN AssetDesc2 ELSE res_AssetDesc2 END AS best_AssetDesc2,
+            CASE WHEN res_InventNo IS NULL THEN InventNo ELSE res_InventNo END AS best_InventNo,
+            CASE WHEN res_SNo IS NULL THEN SNo ELSE res_SNo END AS best_SNo
+            FROM smartdb.sm14_ass WHERE stk_include=1 AND delete_date IS NULL";
 // $sql .= " LIMIT 500; ";   
 $result = $con->query($sql);
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
         $ass_id             = $row["ass_id"];
-        $Asset              = $row["Asset"];
-        $first_found_flag   = $row["first_found_flag"];
         $Subnumber          = $row["Subnumber"];
         $Class              = $row["Class"];
-        $Location           = $row["Location"];
-        $Room               = $row["Room"];
-        $AssetDesc1         = $row["AssetDesc1"];
-        $AssetDesc2         = $row["AssetDesc2"];
-        $InventNo           = $row["InventNo"];
-        $SNo                = $row["SNo"];
         $impairment_code    = $row["impairment_code"];
         $CurrentNBV         = $row["CurrentNBV"];
         $res_reason_code    = $row["res_reason_code"];
         $res_completed      = $row["res_completed"];
+        // $first_found_flag   = $row["first_found_flag"];
+        $best_Asset         = $row["best_Asset"];
+        $best_Location      = $row["best_Location"];
+        $best_Room          = $row["best_Room"];
+        $best_AssetDesc1    = $row["best_AssetDesc1"];
+        $best_AssetDesc2    = $row["best_AssetDesc2"];
+        $best_InventNo      = $row["best_InventNo"];
+        $best_SNo           = $row["best_SNo"];
 
-
-        $curr_Location  = $Location;
-        $curr_Room      = $Room;
-        $curr_assetname = $AssetDesc1;
-        $curr_InventNo  = $InventNo;
-        $curr_SNo       = $SNo;
-
-        if ($first_found_flag==1) {
-            $asset_disp = "FirstFound";
-        }else{
-            $asset_disp = $Asset;
-        }
         $flag_is = "";
         if (empty($impairment_code)==false) {
             $flag_is = "IS~";
@@ -167,11 +163,11 @@ if ($result->num_rows > 0) {
 
         $flag_status = "<span class='text-danger'>NYC~</span>";
         if($res_completed==1){
-            $flag_status = "<span class='text-success'>FIN~</span>";
+            $flag_status = "<span class='text-success'>FIN~<br>$res_reason_code</span>";
         }
         $btn_action     = "<a href='11_ass.php?ass_id=".$ass_id."' class='btn btn-primary'><span class='octicon octicon-zap' style='font-size:30px'></span></a>";
 
-        echo "<tr><td>".$btn_action."</td><td class='text-center'>".$asset_disp."<br><small>".$assetType."-c".$Class."</small></td><td class='text-center'>".$curr_Location."<br><small>".$curr_Room."</small></td><td>".$curr_assetname."<br><small>".$AssetDesc2."</small></td><td nowrap class='text-center'>".$curr_InventNo."<br><small>".$curr_SNo."</small></td><td class='text-center'>".$flag_is."</td><td class='text-right'>".$disp_CurrentNBV."</td><td class='text-center'>".$flag_status."</td><td class='text-right'>".$btn_action."</td></tr>";
+        echo "<tr><td>".$btn_action."</td><td class='text-center'>".$best_Asset."<br><small>".$assetType."-c".$Class."</small></td><td class='text-center'>".$best_Location."<br><small>".$best_Room."</small></td><td>".$best_AssetDesc1."<br><small>".$best_AssetDesc2."</small></td><td nowrap class='text-center'>".$best_InventNo."<br><small>".$best_SNo."</small></td><td class='text-center'>".$flag_is."</td><td class='text-right'>".$disp_CurrentNBV."</td><td class='text-center'>$flag_status</td><td class='text-right'>".$btn_action."</td></tr>";
 
 
 }}

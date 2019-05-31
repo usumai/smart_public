@@ -176,6 +176,7 @@ $img_list = "<div class='row'><div class='col-12'><div class='form-group'><h2>Im
 
 
 $btn_camera = "<br><br><a href='13_camera.php?ass_id=".$ass_id."' class='btn btn-secondary text-center'  v-if='ar.show_camera_btn'><span class='octicon octicon-device-camera' style='font-size:30px'></span></a>";
+$btn_copy = "<button type='button' class='btn btn-outline-dark' data-toggle='modal' data-target='#modal_copy' v-if='ar.first_found_flag==1'>Copy this asset</button>"; 
 
 
 ?>
@@ -398,6 +399,7 @@ $( function() {
 						<div class="form-group"><label>Fund</label><input type="text" v-model="ar.best_Fund" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
 						<div class="form-group"><label>RspCCtr</label><input type="text" v-model="ar.best_RspCCtr" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
 						<div class="form-group"><label>RevOdep</label><input type="text" v-model="ar.best_RevOdep" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
+						<?=$btn_copy?>
 					</div>
 				</div>
 
@@ -545,14 +547,14 @@ $( function() {
 
 				<div class='row'>
 					<div class='col-2'>
-						<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data" readonly>
+						<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data">
 						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
 					</div>
 					<div class='col-8'>
 						<label><b>When will this asset be repaired/remediated?</b></label>
 					</div>
 					<div class='col-2 text-right'>
-						<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data" readonly>
+						<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data">
 						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
 					</div>
 				</div>
@@ -581,12 +583,44 @@ $( function() {
 			  </div>
 			</div>
 
+
+			<form action='05_action.php' method='get'>
+			<div class="modal fade" id="modal_copy" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			  <div class="modal-dialog modal-lg" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLabel">Copy this asset</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">  
+					<p class="lead">
+						You can copy this asset to a brand new asset, it will copy every aspect of this asset as you've entered it. This is only available for first founds.
+						<br>How many assets would you like to create?
+						<br>
+
+						      	<input type="text" name="duplicate_count" class="form-control">
+						      	<input type="hidden" name="ass_id" value="<?=$ass_id?>">
+						      	<input type="hidden" name="act" value="save_copy_asset">
+					</p>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Back</button>
+	        		<input type="submit" class="btn btn-primary" value='Copy'>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+			</form>
 <!-- 
-Add raw remainder
 Add fix me portal
 Add merge
 Add history
 Add user login
+Autpo answer impairment questions on asset error
+Copy assets
+Asset page dates not great
  -->
 
 
@@ -785,6 +819,7 @@ new Vue({
 					this.ar.show_cancel_btn		= false;
 					this.ar.show_delete_btn		= true;
 					this.ar.show_camera_btn		= true;
+					this.ar.selected_rc_details	= this.ar.rcs[this.ar.res_reason_code]['rc_desc']+" - "+this.ar.rcs[this.ar.res_reason_code]['rc_long_desc'];
 				}else if (this.ar.res_reason_code=='Not Found') {
 					this.ar.show_nyc				= true;
 					this.ar.show_btnset=false;

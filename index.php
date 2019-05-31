@@ -33,7 +33,7 @@ if ($result->num_rows > 0) {
         $sql = "SELECT 
                     sum(CASE WHEN first_found_flag = 1 THEN 1 ELSE 0 END) AS rowcount_firstfound,
                     sum(CASE WHEN res_completed = 1 THEN 1 ELSE 0 END) AS rowcount_completed,
-                    sum(CASE WHEN storage_id IS NULL AND first_found_flag <> 1 THEN 1 ELSE 0 END) AS rowcount_other
+                    sum(CASE WHEN rr_id IS NOT NULL THEN 1 ELSE 0 END) AS rowcount_other
                 FROM smartdb.sm14_ass WHERE stkm_id=$stkm_id AND delete_date IS NULL";
         $result2 = $con->query($sql);
         if ($result2->num_rows > 0) {
@@ -46,7 +46,7 @@ if ($result->num_rows > 0) {
 
 
         $btn_excel = "<a class='dropdown-item' href='05_action.php?act=get_excel&stkm_id=$stkm_id'>Output to excel</a>";
-        $perc_complete = round((($rowcount_completed/$rowcount_original)*100),2);
+        $perc_complete = round((($rowcount_completed/($rowcount_original+$rowcount_firstfound+$rowcount_other))*100),2);
         $btn_export = "<a class='dropdown-item' href='05_action.php?act=get_export_stk&stkm_id=$stkm_id'>Export Stocktake</a>";
 
         $btn_action     = " <div class='dropdown'>
@@ -134,7 +134,7 @@ $(document).ready(function() {
                 <td align='right'>Completed</td>
                 <td align='right'>Status</td>
                 <td align='right'>FF</td>
-                <td align='right'>Other</td>
+                <td align='right'>RR</td>
                 <td align='right'>Action</td>
             </tr>
         <tbody>
@@ -157,6 +157,6 @@ $(document).ready(function() {
         </div>
         <span id="upload_count"></span>
     </span>
-    
+
 </div>
 <?php include "04_footer.php"; ?>

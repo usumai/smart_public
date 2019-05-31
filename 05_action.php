@@ -65,13 +65,13 @@ if ($act=='sys_pull_master') {
      $sql_save = "CREATE TABLE $dbname.sm10_set (`smartm_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL DEFAULT NULL,`delete_date` DATETIME NULL DEFAULT NULL,`update_date` DATETIME NULL DEFAULT NULL,`active_profile_id` INT NULL DEFAULT NULL,`last_access_date` DATETIME NULL,`last_access_profile_id` INT(11) NULL,`smartm_software_version` INT(11) NULL,`smartm_db_version` INT(11) NULL,`rr_extract_date` DATETIME NULL, `rr_extract_user` VARCHAR(255) NULL DEFAULT NULL,`journal_id` INT(11) NULL,`help_shown` INT(11) NULL,`theme_type` INT(11) NULL,`date_last_update_check` DATETIME NULL, PRIMARY KEY (`smartm_id`),UNIQUE INDEX `smartm_id_UNIQUE` (`smartm_id` ASC));";
      mysqli_multi_query($con,$sql_save);
 
-    $sql_save = "INSERT INTO $dbname.sm10_set (create_date, update_date, last_access_date, journal_id, help_shown, theme_type, smartm_software_version) VALUES (NOW(), NOW(), NOW(),1,0,0,2); ";
+    $sql_save = "INSERT INTO $dbname.sm10_set (create_date, update_date, last_access_date, journal_id, help_shown, theme_type, smartm_software_version) VALUES (NOW(), NOW(), NOW(),1,0,0,1); ";
      mysqli_multi_query($con,$sql_save);
 
      $sql_save = "CREATE TABLE $dbname.sm11_pro (`profile_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL DEFAULT NULL,`delete_date` DATETIME NULL DEFAULT NULL,`update_date` DATETIME NULL DEFAULT NULL,`profile_name` VARCHAR(255) NULL DEFAULT NULL,`profile_drn` VARCHAR(255) NULL DEFAULT NULL,`profile_phone_number` VARCHAR(255) NULL DEFAULT NULL,`profile_pic` LONGTEXT NULL DEFAULT NULL,`profile_color_a` VARCHAR(255) NULL DEFAULT NULL,`profile_color_b` VARCHAR(255) NULL DEFAULT NULL,PRIMARY KEY (`profile_id`),UNIQUE INDEX `profile_id_UNIQUE` (`profile_id` ASC));";
      mysqli_multi_query($con,$sql_save);
 
-     $sql_save = "CREATE TABLE $dbname.sm12_rwr (`rr_id` INT(11) NOT NULL AUTO_INCREMENT,`Asset` VARCHAR(15) NULL DEFAULT NULL,`accNo` VARCHAR(5) NULL DEFAULT NULL, `InventNo` VARCHAR(30) NULL DEFAULT NULL, `AssetDesc1` VARCHAR(255) NULL DEFAULT NULL, `Class` VARCHAR(255) NULL DEFAULT NULL, `ParentName` VARCHAR(255) NULL DEFAULT NULL, PRIMARY KEY (`rr_id`),UNIQUE INDEX `rr_id_UNIQUE` (`rr_id` ASC));";
+     $sql_save = "CREATE TABLE $dbname.sm12_rwr (`rr_id` INT(11) NOT NULL AUTO_INCREMENT,`Asset` VARCHAR(15) NULL DEFAULT NULL,`accNo` VARCHAR(5) NULL DEFAULT NULL, `InventNo` VARCHAR(30) NULL DEFAULT NULL, `AssetDesc1` VARCHAR(255) NULL DEFAULT NULL, `Class` VARCHAR(255) NULL DEFAULT NULL, `ParentName` VARCHAR(255) NULL DEFAULT NULL, `rr_included` int(11) DEFAULT NULL, PRIMARY KEY (`rr_id`),UNIQUE INDEX `rr_id_UNIQUE` (`rr_id` ASC));";
      mysqli_multi_query($con,$sql_save);
 
      $sql_save = "CREATE TABLE $dbname.sm13_stk (`stkm_id` INT NOT NULL AUTO_INCREMENT,`stk_id` INT NULL,`stk_name` VARCHAR(255) NULL,`dpn_extract_date` DATETIME NULL,`dpn_extract_user` VARCHAR(255) NULL,`smm_extract_date` DATETIME NULL,`smm_extract_user` VARCHAR(255) NULL,`smm_delete_date` DATETIME NULL,`smm_delete_user` VARCHAR(255) NULL,`stk_include` INT NULL,`rowcount_original` INT NULL,`journal_text` LONGTEXT NULL,PRIMARY KEY (`stkm_id`),UNIQUE INDEX `stkm_id_UNIQUE` (`stkm_id` ASC));";
@@ -297,8 +297,8 @@ if ($act=='sys_pull_master') {
                $stk_include   = $row["stk_include"];
      }}
      if ($stk_include==1) {
-          $sql_save_stk = "UPDATE smartdb.sm13_stk SET stk_include=1 WHERE stkm_id = $stkm_id;";
-          $sql_save_ass = "UPDATE smartdb.sm14_ass SET stk_include=1 WHERE stkm_id = $stkm_id;";
+          $sql_save_stk = "UPDATE smartdb.sm13_stk SET stk_include=0 WHERE stkm_id = $stkm_id;";
+          $sql_save_ass = "UPDATE smartdb.sm14_ass SET stk_include=0 WHERE stkm_id = $stkm_id;";
      }else{
           $sql_save_stk = "UPDATE smartdb.sm13_stk SET stk_include=1 WHERE stkm_id = $stkm_id;";
           $sql_save_ass = "UPDATE smartdb.sm14_ass SET stk_include=1 WHERE stkm_id = $stkm_id;";
@@ -338,7 +338,7 @@ if ($act=='sys_pull_master') {
           return $fieldvalue;
      }
 
-
+     // echo "<br>Type:" .$arr['type'];
      if ($arr['type']=="stocktake") {
           $stk_id                  = $arr['stk_id'];
           $stk_name                = $arr['stk_name'];
@@ -429,7 +429,7 @@ if ($act=='sys_pull_master') {
           }
 
           // Update the RR with the updated abbreviations
-          $sql_save = "UPDATE smartdb.smart_l03_rr SET ParentName=(SELECT file_desc FROM smartdb.sm16_file WHERE file_type='abbrev_owner' AND file_ref=SUBSTRING(smartdb.smart_l03_rr.Asset,1,1)), Class=(SELECT file_desc FROM smartdb.sm16_file WHERE file_type='abbrev_class' AND file_ref=SUBSTRING(smartdb.smart_l03_rr.Asset,2,1)), Asset=SUBSTRING(smartdb.smart_l03_rr.Asset,3)";
+          $sql_save = "UPDATE smartdb.sm12_rwr SET ParentName=(SELECT file_desc FROM smartdb.sm16_file WHERE file_type='abbrev_owner' AND file_ref=SUBSTRING(smartdb.sm12_rwr.Asset,1,1)), Class=(SELECT file_desc FROM smartdb.sm16_file WHERE file_type='abbrev_class' AND file_ref=SUBSTRING(smartdb.sm12_rwr.Asset,2,1)), Asset=SUBSTRING(smartdb.sm12_rwr.Asset,3)";
           mysqli_multi_query($con,$sql_save);
 
 
@@ -454,9 +454,8 @@ if ($act=='sys_pull_master') {
      $seconds_disp  = substr("00".$mydate['seconds'], -2);
      $date_disp = $mydate['year'].$month_disp.$day_disp;
      $date_disp = $mydate['year'].$month_disp.$day_disp."_".$hours_disp.$minutes_disp.$seconds_disp;
-     $txt_file_link = 'SMARTm_file_'.$date_disp.'.json';
-     $fp = fopen($txt_file_link, 'w');
 
+echo $date_disp;
      $sql = "SELECT *  FROM smartdb.sm14_ass WHERE stkm_id = $stkm_id AND delete_date IS NULL ;";
      $arr_asset = array();
      $result = $con->query($sql);
@@ -475,6 +474,9 @@ if ($act=='sys_pull_master') {
              $dpn_extract_user     = $row["dpn_extract_user"];
              $journal_text         = $row["journal_text"];
      }}
+
+     $txt_file_link = "SMARTm_".$date_disp."_$stk_name.json";
+     $fp = fopen($txt_file_link, 'w');
 
      $sql = "SELECT * FROM smartdb.sm10_set;";
      $result = $con->query($sql);
@@ -500,7 +502,7 @@ if ($act=='sys_pull_master') {
      }}
 
      $response = array();
-     $response['import']['type']                  = "stocktake_export";
+     $response['import']['type']                  = "stocktake";
      $response['import']['stkm_id']               = $stkm_id;
      $response['import']['stk_id']                = $stk_id;
      $response['import']['stk_name']              = $stk_name;
@@ -549,6 +551,34 @@ if ($act=='sys_pull_master') {
      mysqli_multi_query($con,$sql_save);
      header("Location: index.php");
 
+}elseif ($act=='save_copy_asset'){
+     $ass_id             = $_GET["ass_id"];
+     $duplicate_count    = $_GET["duplicate_count"];
+
+     $column_names = Array();
+     $sql = "  SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` 
+               WHERE `TABLE_SCHEMA`='smartdb' AND `TABLE_NAME`='sm14_ass';";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+         while($row = $result->fetch_assoc()) {
+          $column_names[] = $row['COLUMN_NAME'];
+     }}
+     unset($column_names[0]); //Remove ass_id since it is a primary key
+     $field_list = implode(', ', $column_names);
+
+     // echo "<br>".$field_list;
+     // echo "<br>".$ass_id;
+     // echo "<br>".$duplicate_count;
+     $sql_copy = "  INSERT INTO smartdb.sm14_ass ($field_list)
+                    SELECT $field_list FROM smartdb.sm14_ass WHERE ass_id=$ass_id";
+     $x=0;
+     while($x < $duplicate_count) {
+          // echo "<br><br>".$sql_copy;
+          mysqli_multi_query($con,$sql_copy);
+          $x++;
+     } 
+
+     header("Location: 10_stk.php");
 
 }elseif ($act=='save_dearchive_stk'){
      $stkm_id = $_GET["stkm_id"];
@@ -817,6 +847,43 @@ if ($act=='sys_pull_master') {
      }}
      echo $rowcount_rr;
 
+
+}elseif ($act=='save_rr_add') {
+     $rr_id    = $_GET["rr_id"];
+     $stkm_id  = $_GET["stkm_id"];
+
+     $sql = "SELECT * FROM smartdb.sm12_rwr WHERE rr_id=$rr_id;";
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+          while($row = $result->fetch_assoc()) {
+               $Asset         = $row["Asset"];
+               $AssetDesc1    = $row["AssetDesc1"];
+               $Class         = $row["Class"];
+               $ParentName    = $row["ParentName"];
+     }}
+
+     $create_user = "";
+     $fingerprint = TIME();
+     $sql_save = "INSERT INTO smartdb.sm14_ass (stkm_id, Asset, AssetDesc1, rr_id, genesis_cat, res_create_date, res_create_user, res_reason_code, res_completed, Class, res_comment, fingerprint) VALUES ('$stkm_id','$Asset','$AssetDesc1','$rr_id','Added from RR',NOW(),'$create_user','AF20',1,'$Class','Owner parent name: $ParentName', '$fingerprint'); ";
+     mysqli_multi_query($con,$sql_save);
+
+     $sql = "SELECT MAX(ass_id) AS ass_id FROM smartdb.sm14_ass;";
+     // echo "<br><br>".$sql;
+     $result = $con->query($sql);
+     if ($result->num_rows > 0) {
+          while($row = $result->fetch_assoc()) {
+               $ass_id   = $row["ass_id"];
+     }}
+
+     $sql_save = "UPDATE smartdb.sm12_rwr SET rr_included=1 WHERE rr_id='$rr_id';";
+     echo "<br><br>".$sql_save;
+     mysqli_multi_query($con,$sql_save);
+
+     // $sql_save_history = "INSERT INTO ".$dbname.".smart_l10_history (create_date, create_user, history_type, history_desc, history_link) VALUES ( NOW(),'".$create_user."','Added an asset from the RR list','Ass_id ".$ass_id." was added from the RR list','102_asset.php?ass_id=".$ass_id."');";
+     // mysqli_multi_query($con,$sql_save_history);
+
+     header("Location: 11_ass.php?ass_id=".$ass_id);
+
 }elseif ($act=='get_rawremainder_asset_count') {
      $search_term = $_POST["search_term"];
      $res02 = "";
@@ -829,7 +896,7 @@ if ($act=='sys_pull_master') {
      }}
 
      if ($rr_asset_count>0) {
-          $msg_rr_count = "This search also matched <a href='108_rr.php?search_term=".$search_term."'>".$rr_asset_count."</a> results in the raw remainder dataset.";
+          $msg_rr_count = "This search also matched <a href='14_rr.php?search_term=".$search_term."'>".$rr_asset_count."</a> results in the raw remainder dataset.";
      }else{
           $msg_rr_count = "This search did not match anything in the raw remainder dataset.";
      }
