@@ -204,6 +204,18 @@ $( function() {
 		$('#'+filename).show();
 	});
 
+	$('.datepicker').change(function(){
+		let field_name 	= $(this).attr("name");
+		let field_value = $(this).val();
+		app.ar['best_'+field_name] = field_value
+		console.log("field_name:"+field_name);
+		// console.log(field_value);
+		// console.log(app.ar.res_reason_code);
+		app.sync_data(field_name);
+	});
+
+
+
 });
 </script>
 
@@ -361,44 +373,44 @@ $( function() {
 			<span v-if="ar.show_fieldset">
 				<div class='row'>
 					<div class='col-4'>
-						<div class="form-group"><label>Asset Description</label><input type="text" v-model="ar.best_AssetDesc1" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>Asset Description 2</label><input type="text" v-model="ar.best_AssetDesc2" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>Asset Main No Text</label><input type="text" v-model="ar.best_AssetMainNoText" class="form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>Inventory</label><input type="text" v-model="ar.best_Inventory" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>InventNo</label><input type="text" v-model="ar.best_InventNo" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
+						<div class="form-group"><label>Asset Description</label><input type="text" v-model="ar.best_AssetDesc1" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('AssetDesc1')"></div>
+						<div class="form-group"><label>Asset Description 2</label><input type="text" v-model="ar.best_AssetDesc2" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('AssetDesc2')"></div>
+						<div class="form-group"><label>Asset Main No Text</label><input type="text" v-model="ar.best_AssetMainNoText" class="form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('AssetMainNoText')"></div>
+						<div class="form-group"><label>Inventory</label><input type="text" v-model="ar.best_Inventory" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('Inventory')"></div>
+						<div class="form-group"><label>InventNo</label><input type="text" v-model="ar.best_InventNo" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('InventNo')"></div>
 					</div>
 					<div class='col-2'>
-						<div class="form-group"><label>Serial No</label><input type="text" v-model="ar.best_SNo" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>Location</label><input type="text" v-model="ar.best_Location" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>Level/Room</label><input type="text" v-model="ar.best_Room" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>State</label><input type="text" v-model="ar.best_State" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>latitude</label><input type="text" v-model="ar.best_latitude" class= "form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_latitude)}"></div>
-						<div class="form-group"><label>longitude</label><input type="text" v-model="ar.best_longitude" class= "form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_longitude)}"></div>
+						<div class="form-group"><label>Serial No</label><input type="text" v-model="ar.best_SNo" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('SNo')"></div>
+						<div class="form-group"><label>Location</label><input type="text" v-model="ar.best_Location" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('Location')"></div>
+						<div class="form-group"><label>Level/Room</label><input type="text" v-model="ar.best_Room" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('Room')"></div>
+						<div class="form-group"><label>State</label><input type="text" v-model="ar.best_State" class="form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('State')"></div>
+						<div class="form-group"><label>latitude</label><input type="text" v-model="ar.best_latitude" class= "form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('latitude')" v-bind:class="{'text-danger': isNaN(ar.best_latitude)}"></div>
+						<div class="form-group"><label>longitude</label><input type="text" v-model="ar.best_longitude" class= "form-control" :disabled="ar.lock_limited" v-on:keyup="sync_data('longitude')" v-bind:class="{'text-danger': isNaN(ar.best_longitude)}"></div>
 					</div>
 					<div class='col-2'>
-						<div class="form-group"><label>Class</label><input type="text" v-model="ar.best_Class" class="form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>accNo</label><input type="text" v-model="ar.best_accNo" class="form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>CapDate</label><input type="text" v-model="ar.best_CapDate" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" ></div>
-						<div class="form-group"><label>LastInv (YYYY-MM-DD)</label><input type="text" v-model="ar.best_LastInv" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" ></div>
-						<div class="form-group"><label>DeactDate</label><input type="text" v-model="ar.best_DeactDate" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" ></div>
-						<div class="form-group"><label>PlRetDate</label><input type="text" v-model="ar.best_PlRetDate" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" ></div>
+						<div class="form-group"><label>Class</label><input type="text" v-model="ar.best_Class" class="form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('Class')"></div>
+						<div class="form-group"><label>accNo</label><input type="text" v-model="ar.best_accNo" class="form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('accNo')"></div>
+						<div class="form-group"><label>CapDate</label><input type="text" name="CapDate" v-model="ar.best_CapDate" class= "form-control  datepicker" :disabled="ar.lock_all" v-on:keyup="sync_data('CapDate')" readonly></div>
+						<div class="form-group"><label>LastInv (YYYY-MM-DD)</label><input type="text" name="LastInv" v-model="ar.best_LastInv" class= "form-control datepicker" :disabled="ar.lock_all" v-on:keyup="sync_data('LastInv')"  readonly></div>
+						<div class="form-group"><label>DeactDate</label><input type="text" name="DeactDate" v-model="ar.best_DeactDate" class= "form-control  datepicker" :disabled="ar.lock_all" v-on:keyup="sync_data('DeactDate')"  readonly></div>
+						<div class="form-group"><label>PlRetDate</label><input type="text" name="PlRetDate" v-model="ar.best_PlRetDate" class= "form-control  datepicker" :disabled="ar.lock_all" v-on:keyup="sync_data('PlRetDate')"  readonly ></div>
 						<!-- <div class="form-group"><label>DeactDate</label><vuejs-datepicker  v-model="ar.best_DeactDate"  v-on:change="sync_data"></vuejs-datepicker></div> -->
 							<!-- <input type="text" class= "form-control datepicker" :disabled="ar.lock_all" readonly> -->
 					</div>
 					<div class='col-2'>
-						<div class="form-group"><label>Quantity</label><input type="text" v-model="ar.best_Quantity" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_Quantity)}"></div>
-						<div class="form-group"><label>CurrentNBV</label><input type="text" v-model="ar.best_CurrentNBV" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_CurrentNBV)}"></div>
-						<div class="form-group"><label>AcqValue</label><input type="text" v-model="ar.best_AcqValue" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_AcqValue)}"></div>
-						<div class="form-group"><label>OrigValue</label><input type="text" v-model="ar.best_OrigValue" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_OrigValue)}"></div>
-						<div class="form-group"><label>ScrapVal</label><input type="text" v-model="ar.best_ScrapVal" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data" v-bind:class="{'text-danger': isNaN(ar.best_ScrapVal)}"></div>
-						<div class="form-group"><label>ValMethod</label><input type="text" v-model="ar.best_ValMethod" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
+						<div class="form-group"><label>Quantity</label><input type="text" v-model="ar.best_Quantity" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('Quantity')" v-bind:class="{'text-danger': isNaN(ar.best_Quantity)}"></div>
+						<div class="form-group"><label>CurrentNBV</label><input type="text" v-model="ar.best_CurrentNBV" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('CurrentNBV')" v-bind:class="{'text-danger': isNaN(ar.best_CurrentNBV)}"></div>
+						<div class="form-group"><label>AcqValue</label><input type="text" v-model="ar.best_AcqValue" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('AcqValue')" v-bind:class="{'text-danger': isNaN(ar.best_AcqValue)}"></div>
+						<div class="form-group"><label>OrigValue</label><input type="text" v-model="ar.best_OrigValue" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('OrigValue')" v-bind:class="{'text-danger': isNaN(ar.best_OrigValue)}"></div>
+						<div class="form-group"><label>ScrapVal</label><input type="text" v-model="ar.best_ScrapVal" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('ScrapVal')" v-bind:class="{'text-danger': isNaN(ar.best_ScrapVal)}"></div>
+						<div class="form-group"><label>ValMethod</label><input type="text" v-model="ar.best_ValMethod" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('ValMethod')"></div>
 					</div>
 					<div class='col-2'>
-						<div class="form-group"><label>CostCtr</label><input type="text" v-model="ar.best_CostCtr" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>WBSElem</label><input type="text" v-model="ar.best_WBSElem" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>Fund</label><input type="text" v-model="ar.best_Fund" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>RspCCtr</label><input type="text" v-model="ar.best_RspCCtr" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
-						<div class="form-group"><label>RevOdep</label><input type="text" v-model="ar.best_RevOdep" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data"></div>
+						<div class="form-group"><label>CostCtr</label><input type="text" v-model="ar.best_CostCtr" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('CostCtr')"></div>
+						<div class="form-group"><label>WBSElem</label><input type="text" v-model="ar.best_WBSElem" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('WBSElem')"></div>
+						<div class="form-group"><label>Fund</label><input type="text" v-model="ar.best_Fund" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('Fund')"></div>
+						<div class="form-group"><label>RspCCtr</label><input type="text" v-model="ar.best_RspCCtr" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('RspCCtr')"></div>
+						<div class="form-group"><label>RevOdep</label><input type="text" v-model="ar.best_RevOdep" class= "form-control" :disabled="ar.lock_all" v-on:keyup="sync_data('RevOdep')"></div>
 						<?=$btn_copy?>
 					</div>
 				</div>
@@ -410,7 +422,7 @@ $( function() {
 					<div class='col-12'>
 						<div class="form-group"><h2>Comments</h2>
 							<!-- <input type="text"> -->
-							<textarea v-model="ar.res_comment" class= "form-control" v-on:keyup="sync_data" rows='5'></textarea>
+							<textarea v-model="ar.res_comment" class= "form-control" v-on:keyup="sync_data('comment')" rows='5'></textarea>
 						</div>
 					</div>
 				</div>
@@ -547,14 +559,14 @@ $( function() {
 
 				<div class='row'>
 					<div class='col-2'>
-						<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data">
+						<input type="text" v-model="ar.res_isq_15" name="isq_15" class= "form-control datepicker" v-on:keyup="sync_data">
 						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
 					</div>
 					<div class='col-8'>
 						<label><b>When will this asset be repaired/remediated?</b></label>
 					</div>
 					<div class='col-2 text-right'>
-						<input type="text" v-model="ar.res_isq_15" class= "form-control" v-on:keyup="sync_data">
+						<input type="text" v-model="ar.res_isq_15" name="isq_15" class= "form-control datepicker" v-on:keyup="sync_data">
 						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
 					</div>
 				</div>
@@ -614,13 +626,14 @@ $( function() {
 			</div>
 			</form>
 <!-- 
-Add fix me portal
-Add merge
+DPN export is called json_update
 Add history
+Add fix me portal - inherent in the install file - what about delete db?
+Add merge
 Add user login
-Autpo answer impairment questions on asset error
-Copy assets
-Asset page dates not great
+Auto answer impairment questions on asset error
+
+The DPN upload process is working, but it isn't doing the supernumery things to clean up and finalise the upload
  -->
 
 
@@ -659,35 +672,40 @@ Asset page dates not great
 
 <br><br><br>
 <script>
-new Vue({
+let app = new Vue({
 	el: '#asset_page',
 	data: <?=$json_asset?>,
 	components: {
 		vuejsDatepicker
 	},
 	methods: {
-		sync_data: function (event) {
+		// sync_data: function (event) {
+		sync_data(field_name){
+			console.log(field_name);
+			let orig_fv = this.ar[field_name];
+			let res_fv 	= this.ar['res_'+field_name];
+			let best_fv = this.ar['best_'+field_name];
 
-			let data = new FormData();
-			data.append("act", 				"save_asset_field");
-			data.append("ass_id", 			this.ar.ass_id);
-			// console.log(this.ar);
-			let asset_vals = Object.entries(this.ar);
-			asset_vals = JSON.stringify(asset_vals);
-			console.log(asset_vals);
-			data.append("asset_vals", 	asset_vals);
-			fetch("05_action.php", {
-				method: "POST",
-    			body: data
-			})
-			.then(function(res){ 
-				return res.text();
-			})
-			.then(function(res){ 
-				console.log(res);
-				if(res=="success"){
-				}
-			})
+			if(orig_fv!=best_fv){
+				let data = new FormData();
+				data.append("act", 			"save_asset_field_single");
+				data.append("ass_id", 		this.ar.ass_id);
+				data.append("field_name", 	field_name);
+				data.append("best_fv", 		best_fv);
+				fetch("05_action.php", {
+					method: "POST",
+	    			body: data
+				})
+				.then(function(res){ 
+					return res.text();
+				})
+				.then(function(res){ 
+					console.log(res);
+					if(res=="success"){
+					}
+				})				
+			}
+
 		},
 		isValidDate(d) {
 			return d instanceof Date && !isNaN(d);

@@ -263,6 +263,12 @@ if ($act=='sys_pull_master') {
      echo "<br><br>".$sql_save;
      mysqli_multi_query($con,$sql_save);
 
+     $sql_save = "CREATE TABLE $dbname.sm17_history (`history_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL,`create_user` VARCHAR(255) NULL,`history_link` VARCHAR(255) NULL,`history_type` VARCHAR(255) NULL,`history_desc` VARCHAR(255) NULL, PRIMARY KEY (`history_id`));";
+     echo "<br><br>".$sql_save;
+     mysqli_multi_query($con,$sql_save);
+     $sql_save = "INSERT INTO ".$dbname.".sm17_history (create_date, create_user, history_type, history_desc) VALUES ( NOW(),'System Robot','System Initialisation','The system initiated a new deployment');";
+     mysqli_multi_query($con,$sql_save);
+
      header("Location: index.php");
 
 
@@ -487,10 +493,10 @@ echo $date_disp;
      $smm_create_date = $mydate['year']."-".$month_disp."-".$day_disp;
 
      $sql = " SELECT 
-                   sum(CASE WHEN storage_id IS NOT NULL THEN 1 ELSE 0 END) AS rowcount_original,
-                   sum(CASE WHEN first_found_flag = 1 THEN 1 ELSE 0 END) AS rowcount_firstfound,
-                   sum(CASE WHEN res_completed = 1 THEN 1 ELSE 0 END) AS rowcount_completed,
-                   sum(CASE WHEN storage_id IS NULL AND first_found_flag <> 1 THEN 1 ELSE 0 END) AS rowcount_other
+                    sum(CASE WHEN storage_id IS NOT NULL THEN 1 ELSE 0 END) AS rowcount_original,
+                    sum(CASE WHEN first_found_flag = 1 THEN 1 ELSE 0 END) AS rowcount_firstfound,
+                    sum(CASE WHEN res_completed = 1 THEN 1 ELSE 0 END) AS rowcount_completed,
+                    sum(CASE WHEN rr_id IS NOT NULL THEN 1 ELSE 0 END) AS rowcount_other
                FROM smartdb.sm14_ass WHERE stkm_id=$stkm_id AND delete_date IS NULL";
      $result2 = $con->query($sql);
      if ($result2->num_rows > 0) {
@@ -601,6 +607,9 @@ echo $date_disp;
           echo 'success';     
      }
 
+     $create_user = '';
+     $sql_save = "INSERT INTO smartdb.sm17_history (create_date, create_user, history_type, history_desc, history_link) VALUES (NOW(),'$create_user','Asset','Edited asset','11_ass.php?ass_id=$ass_id');";
+     mysqli_multi_query($con,$sql_save);
 
 
 }elseif ($act=='get_excel'){
@@ -691,6 +700,32 @@ echo $date_disp;
      $sql_save = "  UPDATE smartdb.sm14_ass SET $sql_list WHERE ass_id=$ass_id";
      mysqli_multi_query($con,$sql_save);
      echo "\n".$sql_save;
+
+
+
+}elseif ($act=='save_asset_field_single'){
+    $ass_id         = $_POST["ass_id"];
+    $field_name     = $_POST["field_name"];
+    $best_fv        = $_POST["best_fv"];
+
+   if (empty($best_fv)) {
+        $best_fv = "null";
+   }elseif($best_fv==""){
+        $best_fv = "null";
+   }else{
+        $best_fv = str_replace("'", "\'", $best_fv);
+        $best_fv = str_replace('"', '\"', $best_fv);
+
+        $best_fv = "'".$best_fv."'";
+   }
+   $field_name = "res_".$field_name;
+    $sql_save = "  UPDATE smartdb.sm14_ass SET $field_name=$best_fv WHERE ass_id=$ass_id";
+    mysqli_multi_query($con,$sql_save);
+    echo "\n".$sql_save;
+
+
+
+
 
 }elseif ($act=='save_asset_isq'){
      $ass_id                       = $_POST["ass_id"];
