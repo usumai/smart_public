@@ -19,6 +19,7 @@ if ($result->num_rows > 0) {
         $smm_delete_user    = $row["smm_delete_user"];
         $stk_include        = $row["stk_include"];
         $journal_text       = $row["journal_text"];
+        $rowcount_original  = $row["rowcount_original"];
 
         if ($stk_include==1) {
             $flag_included  = $icon_spot_green;
@@ -30,15 +31,13 @@ if ($result->num_rows > 0) {
             $btn_archive = "<a class='dropdown-item' href='05_action.php?act=save_archive_stk&stkm_id=$stkm_id'>Archive</a>";
         }
         $sql = "SELECT 
-                    sum(CASE WHEN storage_id IS NOT NULL THEN 1 ELSE 0 END) AS rowcount_original,
                     sum(CASE WHEN first_found_flag = 1 THEN 1 ELSE 0 END) AS rowcount_firstfound,
                     sum(CASE WHEN res_completed = 1 THEN 1 ELSE 0 END) AS rowcount_completed,
-                    sum(CASE WHEN storage_id IS NULL AND first_found_flag <> 1 THEN 1 ELSE 0 END) AS rowcount_other
+                    sum(CASE WHEN rr_id IS NOT NULL THEN 1 ELSE 0 END) AS rowcount_other
                 FROM smartdb.sm14_ass WHERE stkm_id=$stkm_id AND delete_date IS NULL";
         $result2 = $con->query($sql);
         if ($result2->num_rows > 0) {
         while($row2 = $result2->fetch_assoc()) {
-            $rowcount_original      = $row2["rowcount_original"];
             $rowcount_firstfound    = $row2["rowcount_firstfound"];
             $rowcount_completed     = $row2["rowcount_completed"];
             $rowcount_other         = $row2["rowcount_other"];
@@ -47,7 +46,7 @@ if ($result->num_rows > 0) {
 
 
         $btn_excel = "<a class='dropdown-item' href='05_action.php?act=get_excel&stkm_id=$stkm_id'>Output to excel</a>";
-        $perc_complete = round((($rowcount_completed/$rowcount_original)*100),2);
+        $perc_complete = round((($rowcount_completed/($rowcount_original+$rowcount_firstfound+$rowcount_other))*100),2);
         $btn_export = "<a class='dropdown-item' href='05_action.php?act=get_export_stk&stkm_id=$stkm_id'>Export Stocktake</a>";
 
         $btn_action     = " <div class='dropdown'>
@@ -83,10 +82,45 @@ if ($result->num_rows > 0) {
     }
 </style>
 
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#area_upload_status').hide();
+    $('#fileToUpload').change(function(){
+        let filename = $(this).val();
+        if (filename) {
+            $('#btn_submit_upload').show();    
+        }else{
+            $('#btn_submit_upload').hide();    
+        }
+    });
+    $('#btn_submit_upload').click(function(){
+        $('#area_upload_status').show();    
+        $('#form_upload').hide();
+        check_upload_progress();
+    });
+
+    function check_upload_progress(){
+        // do whatever you like here
+        $.get( {
+            url: "05_action.php",
+            data: {
+                act: "get_check_upload_rr"
+            },
+            success: function( data ) {
+                console.log(data)
+                $("#upload_count").text(data+" records uploaded");
+            }
+        });
+        setTimeout(check_upload_progress, 1000);//1000 = 1 sec
+    }
+
+
+
+});
+</script>
 <main role="main" class="flex-shrink-0">
 	<div class="container">
 		<h1 class="mt-5">SMART Mobile</h1>
-		<p class="lead">New auto updating software. Production edition</p>
 	</div>
 </main>
 
@@ -100,7 +134,7 @@ if ($result->num_rows > 0) {
                 <td align='right'>Completed</td>
                 <td align='right'>Status</td>
                 <td align='right'>FF</td>
-                <td align='right'>Other</td>
+                <td align='right'>RR</td>
                 <td align='right'>Action</td>
             </tr>
         <tbody>
@@ -108,46 +142,21 @@ if ($result->num_rows > 0) {
         </tbody>
     </table>
     
-    <form action="05_action.php" method="post" enctype="multipart/form-data">
+    <form action="05_action.php" method="post" enctype="multipart/form-data" id="form_upload">
         <h5 class="card-title">Upload file</h5>
         <h6 class="card-subtitle mb-2 text-muted">Stocktake and Raw Remainder</h6>
         <p class="card-text">
             <input type="file" name="fileToUpload" id="fileToUpload" class="form-control-file">
         </p>
         <input type="hidden" name="act" value="upload_file">
-        <input type="submit" value="Upload File" name="submit" class="btn btn-link">
+        <input type="submit" value="Upload File" name="submit" class="btn btn-link" id="btn_submit_upload" style="display:none">
     </form>
+    <span id="area_upload_status" style="display:none!important">
+        <div class="spinner-border" role="status" id='loading_spinner' style="width: 3rem; height: 3rem;">
+            <span class="sr-only" style="">Loading...</span>
+        </div>
+        <span id="upload_count"></span>
+    </span>
 
-<!-- <div id="myProgress">
-    <div id="myBar"></div>
 </div>
-<input type="file" onchange="readFile(this)">
-
-<script src="07_upload.js"></script>
-
-</div> -->
-
-<!-- 
-
-always working on the working_development branch
-pushing saves to the cloud working_development
-
-when ready to publish
-we make a final push to the working_dev branch keeping them both in sync
-
-we change to the master branch
-we merge the working branch into the master branch
-
-we push the new master branch to remote
-
-
-
-
- -->
-<?
-
-
-
-
-?>
 <?php include "04_footer.php"; ?>
