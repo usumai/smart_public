@@ -19,6 +19,15 @@ if ($act=='sys_pull_master') {
 
 	header("Location: index.php");
 
+}elseif ($act=='sys_open_image_folder') {
+    // $output  = shell_exec('cd/'); 
+    shell_exec('cd C:\xampp\htdocs\110_smart\images'); 
+    // shell_exec('cd/ C:\users\Google Drive\015_www\110_smarter_master\images\ ');
+    // $output  = shell_exec('cd images '); 
+    shell_exec('start .'); 
+    header("Location: index.php");
+
+
 }elseif ($act=='sys_push_master') {//Typically don't use this. Developer only. User access will allow everything to be fucked up.
 	// if(function_exists('shell_exec')) {
 	//     echo "exec is enabled";

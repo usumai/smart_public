@@ -157,6 +157,7 @@ $( function() {
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help</a>
                     <div class="dropdown-menu" aria-labelledby="dropdown01">
+                        <a class='dropdown-item' href='05_action.php?act=sys_open_image_folder'>Image folder</a>
                         <a class='dropdown-item' href='06_admin.php'>Archived Stocktakes</a>
                         <button type='button' class='dropdown-item btn btn-danger' data-toggle='modal' data-target='#modal_confirm_reset'>Reset all data</button>
                         <a class="dropdown-item" href="05_action.php?act=save_invertcolors">Invert Colour Scheme</a>

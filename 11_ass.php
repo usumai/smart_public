@@ -139,7 +139,7 @@ $btn_deleteff 	= "	<div class='dropdown' v-if='ar.show_delete_btn'>
 
 $flag_status 	= "	<span class='nav-link bg-danger  text-center text-light' v-if='ar.show_nyc'>NYC</span>
 					<span class='nav-link bg-success text-center text-light' v-if='ar.show_complete'>Complete</span>
-					<a class='nav-link bg-danger text-center text-light' href='#impairment' v-if='ar.show_incomplete_impaired'>Impaired!</a><br>";
+					<a class='nav-link bg-danger text-center text-light' href='#section_impairment' v-if='ar.show_incomplete_impaired'>Impaired!</a><br>";
 
 
 $Asset 		= $arrsql[0]['Asset'];
@@ -211,7 +211,12 @@ $( function() {
 		console.log("field_name:"+field_name);
 		// console.log(field_value);
 		// console.log(app.ar.res_reason_code);
-		app.sync_data(field_name);
+		if(field_name=="res_isq_15"){
+			app.save_is_result(field_name, field_value);
+		}else{
+			app.sync_data(field_name);
+		}
+		
 	});
 
 
@@ -429,7 +434,7 @@ $( function() {
 			</span>
 
 
-			<div class='row' v-if="ar.show_impaired_curr||ar.show_impaired_prev">
+			<div class='row' v-if="ar.show_impaired_curr||ar.show_impaired_prev" id="section_impairment">
 				<div class='col-12'>
 					<h2>Impairment</h2>
 				</div>
@@ -559,15 +564,15 @@ $( function() {
 
 				<div class='row'>
 					<div class='col-2'>
-						<input type="text" v-model="ar.res_isq_15" name="isq_15" class= "form-control datepicker" v-on:keyup="sync_data">
-						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
+						<input type="text" v-model="ar.res_isq_15" name="res_isq_15" class= "form-control datepicker"readonly>
+						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_15'>Clear</button>
 					</div>
 					<div class='col-8'>
 						<label><b>When will this asset be repaired/remediated?</b></label>
 					</div>
 					<div class='col-2 text-right'>
-						<input type="text" v-model="ar.res_isq_15" name="isq_15" class= "form-control datepicker" v-on:keyup="sync_data">
-						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_10'>Clear</button>
+						<input type="text" v-model="ar.res_isq_15" name="res_isq_15" class= "form-control datepicker" readonly>
+						<button class="btn btn-outline-dark" v-on:click="save_is_result('res_isq_15',null)" v-if='ar.res_isq_15'>Clear</button>
 					</div>
 				</div>
 			</span>
@@ -681,10 +686,15 @@ let app = new Vue({
 	methods: {
 		// sync_data: function (event) {
 		sync_data(field_name){
-			console.log(field_name);
+			console.log("Triggered function: sync_data");
 			let orig_fv = this.ar[field_name];
 			let res_fv 	= this.ar['res_'+field_name];
 			let best_fv = this.ar['best_'+field_name];
+			if (field_name=="comment") {
+				best_fv = res_fv;
+			}
+			console.log("Field name:"+field_name);
+			console.log("Field value:"+best_fv);
 
 			if(orig_fv!=best_fv){
 				let data = new FormData();
@@ -697,6 +707,7 @@ let app = new Vue({
 	    			body: data
 				})
 				.then(function(res){ 
+					console.log(res);
 					return res.text();
 				})
 				.then(function(res){ 
@@ -724,6 +735,10 @@ let app = new Vue({
 				this.ar.res_completed 				= 1;
 			}
 
+
+			if(isq=='res_isq_15'&&isq_res!=null){
+				isq_res = "'"+isq_res+"'";
+			}
 
 			let data = new FormData();
 			data.append("act",						"save_asset_isq");
@@ -829,7 +844,6 @@ let app = new Vue({
 			console.log("this.ar.res_reason_code:"+this.ar.res_reason_code);
 			if (this.ar.res_reason_code) {
 				this.ar.show_btnset			= false;
-
 				if (["FF10","FF15","FF20","FF25"].includes(this.ar.res_reason_code)) {
 					this.ar.show_complete		= true;
 					this.ar.lock_limited 		= false;
@@ -858,7 +872,11 @@ let app = new Vue({
 					this.ar.lock_all 			= true;
 					this.ar.show_clear_btn		= true;
 					this.ar.show_camera_btn		= true;
-					if (this.ar.res_reason_code=='ND10') {
+
+
+
+					if (["ND10","RE20"].includes(this.ar.res_reason_code)) {
+					// if (this.ar.res_reason_code=='ND10') {
 						this.ar.lock_limited 	= false;
 					}
 

@@ -158,5 +158,7 @@ $(document).ready(function() {
         <span id="upload_count"></span>
     </span>
 
+    
+
 </div>
 <?php include "04_footer.php"; ?>
