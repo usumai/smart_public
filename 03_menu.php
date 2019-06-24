@@ -107,6 +107,7 @@ $( function() {
                     search_term: request.term
                 },
                 success: function( data ) {
+                    console.log(data);
                     json = JSON.parse(data)
 
                     response(json);
