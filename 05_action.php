@@ -4,6 +4,7 @@ if (isset($_POST["act"])) {
 }else{
 	$act = $_GET["act"];
 }
+$dbname = "smartdb";
 $addr_git = ' "\Program Files\Git\bin\git"  ';
 $log = "<br>"."Initialising action file";
 // mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -55,7 +56,6 @@ if ($act=='sys_pull_master') {
      header("Location: index.php");
 
 }elseif ($act=='sys_initialise') {
-     $dbname = "smartdb";
 
    $log .= "<br>"."creating database: $dbname";
    $sql_save = "CREATE DATABASE $dbname;";
