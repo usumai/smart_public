@@ -844,7 +844,7 @@ let app = new Vue({
 			console.log("this.ar.res_reason_code:"+this.ar.res_reason_code);
 			if (this.ar.res_reason_code) {
 				this.ar.show_btnset			= false;
-				if (["FF10","FF15","FF20","FF25"].includes(this.ar.res_reason_code)) {
+				if (["FF10","FF15","FF20","FF25","AF20"].includes(this.ar.res_reason_code)) {
 					this.ar.show_complete		= true;
 					this.ar.lock_limited 		= false;
 					this.ar.lock_all 			= false;

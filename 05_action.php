@@ -74,7 +74,7 @@ if ($act=='sys_pull_master') {
      $sql_save = "CREATE TABLE $dbname.sm10_set (`smartm_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL DEFAULT NULL,`delete_date` DATETIME NULL DEFAULT NULL,`update_date` DATETIME NULL DEFAULT NULL,`active_profile_id` INT NULL DEFAULT NULL,`last_access_date` DATETIME NULL,`last_access_profile_id` INT(11) NULL,`smartm_software_version` INT(11) NULL,`smartm_db_version` INT(11) NULL,`rr_extract_date` DATETIME NULL, `rr_extract_user` VARCHAR(255) NULL DEFAULT NULL,`journal_id` INT(11) NULL,`help_shown` INT(11) NULL,`theme_type` INT(11) NULL,`date_last_update_check` DATETIME NULL, PRIMARY KEY (`smartm_id`),UNIQUE INDEX `smartm_id_UNIQUE` (`smartm_id` ASC));";
      mysqli_multi_query($con,$sql_save);
 
-    $sql_save = "INSERT INTO $dbname.sm10_set (create_date, update_date, last_access_date, journal_id, help_shown, theme_type, smartm_software_version) VALUES (NOW(), NOW(), NOW(),1,0,0,4); ";
+    $sql_save = "INSERT INTO $dbname.sm10_set (create_date, update_date, last_access_date, journal_id, help_shown, theme_type, smartm_software_version) VALUES (NOW(), NOW(), NOW(),1,0,0,5); ";
      mysqli_multi_query($con,$sql_save);
 
      $sql_save = "CREATE TABLE $dbname.sm11_pro (`profile_id` INT(11) NOT NULL AUTO_INCREMENT,`create_date` DATETIME NULL DEFAULT NULL,`delete_date` DATETIME NULL DEFAULT NULL,`update_date` DATETIME NULL DEFAULT NULL,`profile_name` VARCHAR(255) NULL DEFAULT NULL,`profile_drn` VARCHAR(255) NULL DEFAULT NULL,`profile_phone_number` VARCHAR(255) NULL DEFAULT NULL,`profile_pic` LONGTEXT NULL DEFAULT NULL,`profile_color_a` VARCHAR(255) NULL DEFAULT NULL,`profile_color_b` VARCHAR(255) NULL DEFAULT NULL,PRIMARY KEY (`profile_id`),UNIQUE INDEX `profile_id_UNIQUE` (`profile_id` ASC));";
@@ -908,7 +908,7 @@ echo $date_disp;
 
      $create_user = "";
      $fingerprint = TIME();
-     $sql_save = "INSERT INTO smartdb.sm14_ass (stkm_id, Asset, AssetDesc1, rr_id, genesis_cat, res_create_date, res_create_user, res_reason_code, res_completed, Class, res_comment, fingerprint) VALUES ('$stkm_id','$Asset','$AssetDesc1','$rr_id','Added from RR',NOW(),'$create_user','AF20',1,'$Class','Owner parent name: $ParentName', '$fingerprint'); ";
+     $sql_save = "INSERT INTO smartdb.sm14_ass (stkm_id, Asset, AssetDesc1, rr_id, genesis_cat, res_create_date, res_create_user, res_reason_code, res_completed, Class, res_comment, fingerprint, stk_include) VALUES ('$stkm_id','$Asset','$AssetDesc1','$rr_id','Added from RR',NOW(),'$create_user','AF20',1,'$Class','Owner parent name: $ParentName', '$fingerprint', 1); ";
      mysqli_multi_query($con,$sql_save);
 
      $sql = "SELECT MAX(ass_id) AS ass_id FROM smartdb.sm14_ass;";
