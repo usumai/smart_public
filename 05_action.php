@@ -17,6 +17,11 @@ if ($act=='sys_pull_master') {
 	$output .= shell_exec($addr_git.' pull https://github.com/usumai/smart_public.git');
 	echo "<pre>$output</pre>";
 
+     $sql_save = "UPDATE $dbname.sm10_set SET smartm_software_version=5; ";
+     mysqli_multi_query($con,$sql_save);
+
+
+
 	header("Location: index.php");
 
 }elseif ($act=='sys_open_image_folder') {
