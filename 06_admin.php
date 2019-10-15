@@ -2,7 +2,6 @@
 <?php include "02_header.php"; ?>
 <?php include "03_menu.php"; ?>
 <?php
-
 $rw_stk = "";
 $sql = "SELECT * FROM smartdb.sm13_stk WHERE smm_delete_date IS NOT NULL;";
 $result = $con->query($sql);
@@ -19,7 +18,6 @@ if ($result->num_rows > 0) {
         $smm_delete_user    = $row["smm_delete_user"];
         $stk_include        = $row["stk_include"];
         $journal_text       = $row["journal_text"];
-
         if ($stk_include==1) {
             $flag_included  = $icon_spot_green;
             $btn_toggle = "<a class='dropdown-item' href='05_action.php?act=save_stk_toggle&stkm_id=".$stkm_id."'>Exclude this stocktake</a>";
@@ -41,14 +39,10 @@ if ($result->num_rows > 0) {
             $rowcount_completed     = $row2["rowcount_completed"];
             $rowcount_other         = $row2["rowcount_other"];
         }}
-
-
-
         $btn_excel = "<a class='dropdown-item' href='05_action.php?act=get_excel&stkm_id=$stkm_id'>Output to excel</a>";
         $perc_complete = round((($rowcount_completed/$rowcount_original)*100),2);
         $btn_export = "<a class='dropdown-item' href='05_action.php?act=get_export_stk&stkm_id=$stkm_id'>Export Stocktake</a>";
         $btn_dearchive = "<a class='dropdown-item' href='05_action.php?act=save_dearchive_stk&stkm_id=$stkm_id'>Restore</a>";
-
         $btn_action     = " <div class='dropdown'>
                                 <button class='btn btn-outline-dark dropdown-toggle' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action</button>
                                 <div class='dropdown-menu' aria-labelledby='dropdownMenuButton'>
