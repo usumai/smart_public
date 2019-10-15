@@ -21,6 +21,11 @@ $active_user   = "";
 // mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 //CRUD
 if ($act=='sys_pull_master') {
+
+
+     // $sql_save = "DROP DATABASE $dbname;";
+     // mysqli_multi_query($con,$sql_save); 
+
 	//This file updates the local software with the currently published software
 
 	$output  = shell_exec($addr_git.' init 2>&1'); 
@@ -1760,7 +1765,7 @@ function fnAddHist($history_type, $history_desc){
      $history_type = cleanvalue($history_type);
      $history_desc = cleanvalue($history_desc);
      $sql = "INSERT INTO smartdb.sm17_history (create_date, create_user, history_type, history_desc) VALUES ( NOW(),'$current_user','$history_type','$history_desc');";
-     runSql($sql)
+     runSql($sql);
 }
 
 
