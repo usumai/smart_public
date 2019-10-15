@@ -48,7 +48,7 @@ if ($result->num_rows > 0) {
 <div class="container">
 	<div class="row">
 		<h2>Raw remainder assets. Search result for: "<?=$search_term?>" </h2>
-		This page will only show the first 100 results, go back and search for a more specific term.
+		This page will only show the first 100 results, search for a more specific term above.
 	</div>
 	<div class="row">
 	    <div class="col-lg">    	

@@ -16,7 +16,8 @@ $ass_id	= $_GET["ass_id"];
 				<input type="hidden" name="act" value="save_photo">
 				<input type="hidden" name="ass_id" value="<?=$ass_id?>">
 				<input type="hidden" name="res_img_data" id="res_img_data">
-	        	<button type="submit" class="btn btn-success btn_acceptphoto" id="btn_acceptphoto"><span class='octicon octicon-check' style='font-size:30px'></span></button><br>
+				<button type="submit" class="btn btn-success btn_acceptphoto" id="btn_acceptphoto"><span class='octicon octicon-check' style='font-size:30px'></span></button><br>
+				<br><br>
 	        	<a href="11_ass.php?ass_id=<?=$ass_id?>" class="btn btn-danger" id="btn_cancelphoto"><span class='octicon octicon-x' style='font-size:30px'></span></a>
 			</form><br><br><br><br><br>
 		</td>
@@ -36,6 +37,7 @@ $ass_id	= $_GET["ass_id"];
 				<input type="hidden" name="ass_id" value="<?=$ass_id?>">
 				<input type="hidden" name="res_img_data" id="res_img_data2">
 	        	<button type="submit" class="btn btn-success btn_acceptphoto" id="btn_acceptphoto"><span class='octicon octicon-check' style='font-size:30px'></span></button><br>
+				<br><br>
 	        	<a href="11_ass.php?ass_id=<?=$ass_id?>" class="btn btn-danger" id="btn_cancelphoto"><span class='octicon octicon-x' style='font-size:30px'></span></a>
 			</form><br><br><br><br><br>
 		</td>
