@@ -5,7 +5,7 @@ if (isset($_POST["act"])) {
 	$act = $_GET["act"];
 }
 $exportFileVersion=1;
-$this_version_no  = 5;
+$this_version_no  = 6;
 $date_version_published = "2019-10-03 00:00:00";
 // Steps for relesing a new version:
 // 1. Update the version info above with version number one more than current
@@ -14,9 +14,10 @@ $date_version_published = "2019-10-03 00:00:00";
 // 4. Push local to master using toolshelf
 
 // echo $act;
-$dbname = "smartdb";
-$addr_git = ' "\Program Files\Git\bin\git"  ';
-$log = "<br>"."Initialising action file";
+$dbname        = "smartdb";
+$addr_git      = ' "\Program Files\Git\bin\git"  ';
+$log           = "<br>"."Initialising action file";
+$active_user   = "";
 // mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 //CRUD
 if ($act=='sys_pull_master') {
@@ -30,7 +31,7 @@ if ($act=='sys_pull_master') {
 
      mysqli_multi_query($con,$sql_save);
      
-	header("Location: 05_action.php?act=sys_initialise");
+	header("Location: 05_action.php?act=sys_reset_data");
 
 }elseif ($act=='sys_open_image_folder') {
     // $output  = shell_exec('cd/'); 
@@ -137,6 +138,10 @@ if ($act=='sys_pull_master') {
 
 
      echo "<br>Type:" .$arr['type'];
+
+
+     fnAddHist("upload", $arr['type']);
+
      if ($arr['type']=="stocktake") {
           $stk_id                  = $arr['stk_id'];
           $stk_name                = $arr['stk_name'];
@@ -1750,6 +1755,15 @@ function runSql($stmt){
 }
 
 
+function fnAddHist($history_type, $history_desc){
+     global $current_user;
+     $history_type = cleanvalue($history_type);
+     $history_desc = cleanvalue($history_desc);
+     $sql = "INSERT INTO smartdb.sm17_history (create_date, create_user, history_type, history_desc) VALUES ( NOW(),'$current_user','$history_type','$history_desc');";
+     runSql($sql)
+}
+
+
 function cleanvalue($fieldvalue) {
      // $fieldvalue = str_replace("'", "\'", $fieldvalue);
      // $fieldvalue = str_replace('"', '\"', $fieldvalue);
@@ -2168,6 +2182,9 @@ function fnInitiateDatabase(){
 
      header("Location: index.php");
 }
+
+
+
 
 
 ?>
