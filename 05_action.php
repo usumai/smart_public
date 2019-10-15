@@ -140,7 +140,7 @@ if ($act=='sys_pull_master') {
      echo "<br>Type:" .$arr['type'];
 
 
-     fnAddHist("upload", $arr['type']);
+     // fnAddHist("upload", $arr['type']);
 
      if ($arr['type']=="stocktake") {
           $stk_id                  = $arr['stk_id'];
