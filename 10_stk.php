@@ -87,7 +87,7 @@ $(document).ready(function() {
     <div class="row">
         <div class="col">
             <h2><?=$count_complete?>/<?=$count_total?> total (<?=$perc_complete?>%)&nbsp;
-            <button class="btn btn-primary btn_search_term" data-search_term="FF~">First found</button>&nbsp;
+            <button class="btn btn-primary btn_search_term" data-search_term="~FF">First found</button>&nbsp;
             <button class="btn btn-primary btn_search_term" data-search_term="FIN~">Completed</button>&nbsp;
             <button class="btn btn-primary btn_search_term" data-search_term="NYC~">Incomplete</button>&nbsp;
             <button class="btn btn-warning btn_search_term_clear">Clear search terms</button></h2>

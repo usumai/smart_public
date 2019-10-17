@@ -272,9 +272,12 @@ $( function() {
 
     $(".rcCat").click(function(){
         catSelection = $(this).val();
+        noedit      = $(this).data("noedit");
+        console.log("noedit")
+        console.log(noedit)
         if(catSelection=="ND10"){
             data["asset"]["res_reason_code"] = "ND10"
-            fnSaveReasonCode("ND10")
+            fnSaveReasonCode("ND10", noedit)
         }else{
             tempData["tempReasonCat"] = catSelection
             setPage()
@@ -323,7 +326,7 @@ $( function() {
         fnSaveReasonCode(rcSelection)
     });
 
-    function fnSaveReasonCode(new_reason_code){
+    function fnSaveReasonCode(new_reason_code, noedit){
         $.post("api.php",{
             act:        "save_AssetFieldValue",
             ass_id:     data["asset"]["ass_id"],
@@ -337,7 +340,11 @@ $( function() {
                 // console.log("Saved successfully")
                 data["asset"]["res_reason_code"] = new_reason_code
                 $(".txy").css("background-color","white")
-                setPage()
+                if (noedit){
+                    window.location.href = "10_stk.php";
+                }else{
+                    setPage()
+                }
             }
         });
     }
@@ -354,20 +361,26 @@ $( function() {
         $(".btnCamera").hide();
         $("#res_reason_code").text("");
         let res_reason_code = data["asset"]["res_reason_code"];
+        let rc_details;
+        for (let rc_no in data["reasoncodes"]){
+            rc_details =  data["reasoncodes"][rc_no]["res_reason_code"]==res_reason_code ? data["reasoncodes"][rc_no]: rc_details;
+        }
         if(res_reason_code){// Asset is finished!
             $("#res_reason_code").text(res_reason_code+" - "+tempData["arrRC"][res_reason_code]);
             $(".btnClear").show();
             $("#areaInputs").show();
             $(".txy").prop('disabled', false);
             $(".btnCamera").show();
-            if(res_reason_code.substring(0,2)=="FF"){
+            // if(res_reason_code.substring(0,2)=="FF"){
+            if(rc_details["rc_section"]=="FF"){
                 $("#btnTemplate").show();
                 $(".btnClear").hide();
                 $(".btnDeleteFF").show();
-            }else if(res_reason_code=="AF20"){
+            }else if(res_reason_code=="AF20"&&data["asset"]["genesis_cat"]=="Added from RR"){
                 $(".btnClear").hide();
                 $(".btnDeleteFF").show();
                 $("#tags").focus();
+
             }else if(res_reason_code=="ND10"){
                 $("#tags").focus();
             }
@@ -429,6 +442,7 @@ $( function() {
 			<nav class='nav flex-column'>
                 <span class='btnTrough'>
                     <button type='button' value='ND10'   class='rcCat nav-link btn hdz' style='background-color:#78e090!important;display:none'>Sighted<br>Edit</button><br>
+                    <button type='button' value='ND10' data-noedit="1"  class='rcCat nav-link btn hdz' style='background-color:#78e090!important;display:none'>Sighted<br>No Edit</button><br>
                     <button type='button' value='notfound'  class='rcCat nav-link btn btn-warning hdz'>Not<br>found</button><br>
                     <button type='button' value='error'     class='rcCat nav-link btn btn-primary hdz'>Asset<br>Error</button><br>
                     <div class='dropdown btnClear hdz'>
@@ -585,6 +599,7 @@ $( function() {
 			<nav class='nav flex-column'>
                 <span class='btnTrough'>
                     <button type='button' value='ND10'   class='rcCat nav-link btn hdz' style='background-color:#78e090!important;display:none'>Sighted<br>Edit</button><br>
+                    <button type='button' value='ND10' data-noedit="1"  class='rcCat nav-link btn hdz' style='background-color:#78e090!important;display:none'>Sighted<br>No Edit</button><br>
                     <button type='button' value='notfound'  class='rcCat nav-link btn btn-warning hdz'>Not<br>found</button><br>
                     <button type='button' value='error'     class='rcCat nav-link btn btn-primary hdz'>Asset<br>Error</button><br>
                     <div class='dropdown btnClear hdz'>

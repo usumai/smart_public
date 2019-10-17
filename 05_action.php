@@ -5,8 +5,8 @@ if (isset($_POST["act"])) {
 	$act = $_GET["act"];
 }
 $exportFileVersion=1;
-$this_version_no  = 6;
-$date_version_published = "2019-10-03 00:00:00";
+$this_version_no  = 7;
+$date_version_published = "2019-10-16 00:00:00";
 // Steps for relesing a new version:
 // 1. Update the version info above with version number one more than current
 // 2. Update the 08_version.json as per above details
@@ -29,6 +29,7 @@ if ($act=='sys_pull_master') {
 	//This file updates the local software with the currently published software
 
 	$output  = shell_exec($addr_git.' init 2>&1'); 
+	$output  = shell_exec($addr_git.' remote set-url https://github.com/usumai/110_smart.git'); 
 	$output .= shell_exec($addr_git.' clean  -d  -f .');
 	$output .= shell_exec($addr_git.' reset --hard');  
 	$output .= shell_exec($addr_git.' pull https://github.com/usumai/110_smart.git');
@@ -1759,14 +1760,6 @@ function runSql($stmt){
      return $log;
 }
 
-
-function fnAddHist($history_type, $history_desc){
-     global $current_user;
-     $history_type = cleanvalue($history_type);
-     $history_desc = cleanvalue($history_desc);
-     $sql = "INSERT INTO smartdb.sm17_history (create_date, create_user, history_type, history_desc) VALUES ( NOW(),'$current_user','$history_type','$history_desc');";
-     runSql($sql);
-}
 
 
 function cleanvalue($fieldvalue) {

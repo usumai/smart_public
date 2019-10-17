@@ -2,8 +2,6 @@
 
 ini_set('max_execution_time', 0);
 
-$smartm_software_version = "1";
-$smartm_db_version = "1";
 
 
 

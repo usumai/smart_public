@@ -122,6 +122,7 @@ $(function() {
     </span>
 
     
-
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <div class='text-center'><a href='00_status.html' class='btn btn-danger'>Reset</a></div>
 </div>
 <?php include "04_footer.php"; ?>

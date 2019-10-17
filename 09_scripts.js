@@ -70,8 +70,8 @@ function fnSetMenu(sys){
     // <?=$area_rr?>
     
     menuRR  = "<div class='dropdown-divider'></div><h6 class='dropdown-header'>Raw Remainder</h6><span class='dropdown-item'>Assets loaded: "+sys["sett"][0]["rr_count"]+"</span>"
-    console.log("sys")
-    console.log(sys)
+    // console.log("sys")
+    // console.log(sys)
     helpContents=btnArchives+btnReset+btnInverColor
     btnVAction  = "<div id='areaVersionAction'><button type='button' class='dropdown-item btn' id='btnCheckForUpdates'>Check for updates</button></div>"
     styleUpdateAvailable =""
